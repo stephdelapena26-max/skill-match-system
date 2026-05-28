@@ -4,7 +4,7 @@ const path = require('path');
 
 const app = express();
 
-// 1. Dynamic Database Connection
+// 1. Dynamic Database Connection (Uses Vercel environment variables live)
 const isProduction = process.env.ENVIRONMENT === 'PRODUCTION';
 
 const pool = new Pool({
@@ -16,9 +16,11 @@ const pool = new Pool({
     ssl: isProduction ? { rejectUnauthorized: false } : false
 });
 
-// AUTO-DB INITIALIZER: Creates your tables automatically if they don't exist
+// CLOUD INITIALIZER: This bypasses your home internet wall and runs directly inside Vercel's network!
 async function initDb() {
+    console.log("🔄 Vercel running database initialization tasks...");
     try {
+        // 1. Create Users Table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
                 user_id SERIAL PRIMARY KEY,
@@ -27,15 +29,20 @@ async function initDb() {
                 password VARCHAR(255)
             );
         `);
+
+        // 2. Create Skills Table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS skills (
                 skill_id SERIAL PRIMARY KEY,
-                user_id INT REFERENCES users(user_id),
+                user_id INT,
                 skill_name VARCHAR(100),
                 description TEXT,
-                type VARCHAR(20)
+                type VARCHAR(20),
+                FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
             );
         `);
+
+        // 3. Create Messages Table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS messages (
                 message_id SERIAL PRIMARY KEY,
@@ -45,14 +52,16 @@ async function initDb() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        console.log("Database tables checked/created successfully!");
+        console.log("🎉 SUCCESS: All database tables are fully deployed and ready on Render!");
     } catch (err) {
-        console.error("Error initializing database tables:", err.message);
+        console.error("❌ Database schema migration failed:", err.message);
     }
 }
+
+// Automatically trigger table creation on startup
 initDb();
 
-// 2. Middleware
+// 2. Middleware Configuration
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -61,7 +70,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html')); 
 });
 
-// 3. The Login Route
+// 3. Login Endpoint
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -87,7 +96,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// 4. The Registration Route
+// 4. Registration Endpoint
 app.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
     try {
@@ -102,7 +111,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// 5. Get profile data
+// 5. User Data Profile Retrieval
 app.get('/api/user-data', async (req, res) => {
     try {
         const result = await pool.query('SELECT user_id, name, email FROM users ORDER BY user_id DESC LIMIT 1');
@@ -114,7 +123,7 @@ app.get('/api/user-data', async (req, res) => {
     }
 });
 
-// 6. Add Post
+// 6. Post Creation Engine
 app.post('/add-post', async (req, res) => {
     const { post_type, skill_name, description } = req.body;
     try {
@@ -133,7 +142,7 @@ app.post('/add-post', async (req, res) => {
     }
 });
 
-// 7. Search Skills & Feed
+// 7. Core Search Query Routing
 app.get('/api/search-skills', async (req, res) => {
     const { query } = req.query;
     try {
@@ -148,7 +157,7 @@ app.get('/api/search-skills', async (req, res) => {
     }
 });
 
-// 8. Delete Post
+// 8. Delete Post Function
 app.delete('/api/delete-post/:postId', async (req, res) => {
     const { postId } = req.params;
     try {
@@ -163,7 +172,7 @@ app.delete('/api/delete-post/:postId', async (req, res) => {
     }
 });
 
-// 9. Load Dynamic Contacts
+// 9. Load Dynamic Contacts Directory
 app.get('/api/my-contacts', async (req, res) => {
     try {
         const result = await pool.query(
@@ -176,7 +185,7 @@ app.get('/api/my-contacts', async (req, res) => {
     }
 });
 
-// 12. Reply Message
+// 12. Submit Reply Message
 app.post('/api/reply-message', async (req, res) => {
     const { message_text, receiverId, senderId } = req.body;
     try {
@@ -190,7 +199,7 @@ app.post('/api/reply-message', async (req, res) => {
     }
 });
 
-// 13. Get Message History
+// 13. Get Private Thread History
 app.get('/api/get-messages', async (req, res) => {
     const { sender, receiver } = req.query;
     try {
