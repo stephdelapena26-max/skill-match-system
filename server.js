@@ -4,16 +4,12 @@ const path = require('path');
 
 const app = express();
 
-// 1. Dynamic Database Connection (Uses Vercel Env Variables if Live, fallback to Localhost)
+// 1. Database Connection (Forces connection string on production)
 const isProduction = process.env.ENVIRONMENT === 'PRODUCTION';
 
 const pool = new Pool({
-    user: isProduction ? process.env.DB_USER : 'postgres',
-    host: isProduction ? process.env.DB_HOST : 'localhost',
-    database: isProduction ? process.env.DB_NAME : 'skill_match_db',
-    password: isProduction ? process.env.DB_PASSWORD : 'agua1226',
-    port: isProduction ? (process.env.DB_PORT || 5432) : 5432,
-    ssl: isProduction ? { rejectUnauthorized: false } : false // Render requires SSL for cloud connections
+    connectionString: isProduction ? process.env.DATABASE_URL : 'postgresql://postgres:agua1226@localhost:5432/skill_match_db',
+    ssl: isProduction ? { rejectUnauthorized: false } : false
 });
 
 // 2. Middleware
@@ -21,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 2.5 Redirect base URL root to the public index layout
+// 2.5 Redirect root URL to public index layout
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html')); 
 });
@@ -30,7 +26,6 @@ app.get('/', (req, res) => {
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        // FIXED: Using 'name' instead of 'username' to align with your SQL CREATE TABLE users definition
         const result = await pool.query(
             'SELECT user_id, name FROM users WHERE email = $1 AND password = $2', 
             [email, password]
@@ -57,7 +52,6 @@ app.post('/login', async (req, res) => {
 app.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
     try {
-        // FIXED: Aligned perfectly with your SQL structure: (name, email, password)
         await pool.query(
             'INSERT INTO users (name, email, password) VALUES ($1, $2, $3)',
             [username, email, password]
@@ -89,7 +83,6 @@ app.post('/add-post', async (req, res) => {
         if (userRes.rows.length === 0) return res.status(400).send("No users exist to make a post.");
         const userId = userRes.rows[0].user_id;
         
-        // FIXED: Target table mapped to 'skills' and type column mapped to 'type' to match your schema
         await pool.query(
             'INSERT INTO skills (user_id, type, skill_name, description) VALUES ($1, $2, $3, $4)',
             [userId, post_type, skill_name, description]
@@ -106,7 +99,6 @@ app.get('/api/search-skills', async (req, res) => {
     const { query } = req.query;
     try {
         const searchQuery = `%${query || ''}%`;
-        // FIXED: Target table mapped to 'skills' table instead of 'posts'
         const result = await pool.query(
             'SELECT * FROM skills WHERE skill_name ILIKE $1 OR description ILIKE $1 ORDER BY skill_id DESC',
             [searchQuery]
@@ -147,7 +139,6 @@ app.get('/api/my-contacts', async (req, res) => {
 
 // 12. Reply Message
 app.post('/api/reply-message', async (req, res) => {
-    console.log("Data received from frontend:", req.body);
     const { message_text, receiverId, senderId } = req.body;
     try {
         const queryText = 'INSERT INTO messages (sender_id, receiver_id, message_text) VALUES ($1, $2, $3)';
@@ -155,7 +146,7 @@ app.post('/api/reply-message', async (req, res) => {
         await pool.query(queryText, values);
         res.status(200).json({ success: true });
     } catch (err) {
-        console.error("CRITICAL DATABASE ERROR:", err.message);
+        console.error("DATABASE ERROR:", err.message);
         res.status(500).json({ success: false, error: err.message });
     }
 });
@@ -180,7 +171,6 @@ app.get('/api/get-messages', async (req, res) => {
 
 module.exports = app;
 
-// Starts server only if running locally
 if (process.env.ENVIRONMENT !== 'PRODUCTION') {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
