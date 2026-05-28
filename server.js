@@ -8,10 +8,10 @@ const app = express();
 const isProduction = process.env.ENVIRONMENT === 'PRODUCTION';
 
 const pool = new Pool({
-    user: 'skill_match_user',
-    host: 'dpg-d8bve3bbc2fs738mlh60-a.onrender.com',
-    database: 'skill_match_db',
-    password: 'azeKmqyRDdRZzZNqqn6Fxaul6lEYqqn',
+    user: 'postgres',
+    host: 'aws-0-ap-northeast-1.pooler.supabase.com', 
+    database: 'postgres',
+    password: 'S6WPvBtt4Zncm0Q8', 
     port: 5432,
     ssl: { rejectUnauthorized: false }
 });
