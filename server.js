@@ -216,13 +216,11 @@ app.get('/api/get-messages', async (req, res) => {
     }
 });
 
-// Export the app for Vercel's serverless environment
 module.exports = app;
 
-// Only spin up the traditional listener if running locally
 if (process.env.ENVIRONMENT === 'LOCAL') {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-        console.log(Server listening on port ${PORT});
+        console.log('Server listening on port ${PORT}');
     });
 }
