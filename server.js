@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 2.5 FIX: Look inside the 'public' folder for index.html to stop 'Cannot GET /' errors
+// 2.5 Redirect base URL root to the public index layout
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html')); 
 });
@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        // FIXED: Using 'name' instead of 'username' to match your SQL table definition
+        // FIXED: Using 'name' instead of 'username' to align with your SQL CREATE TABLE users definition
         const result = await pool.query(
             'SELECT user_id, name FROM users WHERE email = $1 AND password = $2', 
             [email, password]
@@ -57,7 +57,7 @@ app.post('/login', async (req, res) => {
 app.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
     try {
-        // FIXED: Changed 'username' to 'name' to perfectly match your CREATE TABLE users schema
+        // FIXED: Aligned perfectly with your SQL structure: (name, email, password)
         await pool.query(
             'INSERT INTO users (name, email, password) VALUES ($1, $2, $3)',
             [username, email, password]
@@ -72,7 +72,6 @@ app.post('/register', async (req, res) => {
 // 5. Get profile data
 app.get('/api/user-data', async (req, res) => {
     try {
-        // FIXED: Selecting 'name' instead of 'username'
         const result = await pool.query('SELECT user_id, name, email FROM users ORDER BY user_id DESC LIMIT 1');
         if (result.rows.length === 0) return res.status(404).send("User not found");
         res.json(result.rows[0]);
@@ -90,7 +89,7 @@ app.post('/add-post', async (req, res) => {
         if (userRes.rows.length === 0) return res.status(400).send("No users exist to make a post.");
         const userId = userRes.rows[0].user_id;
         
-        // FIXED: Target table changed to 'skills' and column name changed to 'type'
+        // FIXED: Target table mapped to 'skills' and type column mapped to 'type' to match your schema
         await pool.query(
             'INSERT INTO skills (user_id, type, skill_name, description) VALUES ($1, $2, $3, $4)',
             [userId, post_type, skill_name, description]
@@ -107,7 +106,7 @@ app.get('/api/search-skills', async (req, res) => {
     const { query } = req.query;
     try {
         const searchQuery = `%${query || ''}%`;
-        // FIXED: Query targeted on 'skills' table instead of 'posts'
+        // FIXED: Target table mapped to 'skills' table instead of 'posts'
         const result = await pool.query(
             'SELECT * FROM skills WHERE skill_name ILIKE $1 OR description ILIKE $1 ORDER BY skill_id DESC',
             [searchQuery]
@@ -122,7 +121,6 @@ app.get('/api/search-skills', async (req, res) => {
 app.delete('/api/delete-post/:postId', async (req, res) => {
     const { postId } = req.params;
     try {
-        // FIXED: Deletes from 'skills' table
         const result = await pool.query('DELETE FROM skills WHERE skill_id = $1', [postId]);
         if (result.rowCount === 0) {
             return res.status(404).json({ success: false, message: "Post not found" });
@@ -137,7 +135,6 @@ app.delete('/api/delete-post/:postId', async (req, res) => {
 // 9. Load Dynamic Contacts
 app.get('/api/my-contacts', async (req, res) => {
     try {
-        // FIXED: Ordering by 'name' instead of 'username'
         const result = await pool.query(
             'SELECT user_id, name FROM users ORDER BY name ASC'
         );
