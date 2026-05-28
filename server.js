@@ -5,6 +5,11 @@ const app = express();
 
 const pool = new Pool({
   connectionString: 'postgresql://postgres.wotzqohzupzsilmtuehb:S6WPvBtt4Zncm0Q8@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require'
+});const pool = new Pool({
+  connectionString: 'postgresql://postgres.wotzqohzupzsilmtuehb:S6WPvBtt4Zncm0Q8@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres',
+  ssl: {
+    rejectUnauthorized: false // Ito ang mag-aalis ng "self-signed certificate" error
+  }
 });
 
 app.use(express.json());
