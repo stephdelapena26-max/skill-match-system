@@ -30,8 +30,9 @@ app.get('/', (req, res) => {
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
+        // FIXED: Using 'name' instead of 'username' to match your SQL table definition
         const result = await pool.query(
-            'SELECT user_id, username FROM users WHERE email = $1 AND password = $2', 
+            'SELECT user_id, name FROM users WHERE email = $1 AND password = $2', 
             [email, password]
         );
         if (result.rows.length > 0) {
@@ -39,7 +40,7 @@ app.post('/login', async (req, res) => {
             res.send(`
                 <script>
                     localStorage.setItem('userId', '${user.user_id}');
-                    localStorage.setItem('username', '${user.username}');
+                    localStorage.setItem('username', '${user.name}');
                     window.location.href = '/dashboard.html';
                 </script>
             `);
@@ -56,8 +57,9 @@ app.post('/login', async (req, res) => {
 app.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
     try {
+        // FIXED: Changed 'username' to 'name' to perfectly match your CREATE TABLE users schema
         await pool.query(
-            'INSERT INTO users (username, email, password) VALUES ($1, $2, $3)',
+            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3)',
             [username, email, password]
         );
         res.send('<h1>Registration Successful!</h1><a href="/index.html">Click here to Login</a>');
@@ -70,7 +72,8 @@ app.post('/register', async (req, res) => {
 // 5. Get profile data
 app.get('/api/user-data', async (req, res) => {
     try {
-        const result = await pool.query('SELECT user_id, username, email, bio, pfp_icon FROM users ORDER BY user_id DESC LIMIT 1');
+        // FIXED: Selecting 'name' instead of 'username'
+        const result = await pool.query('SELECT user_id, name, email FROM users ORDER BY user_id DESC LIMIT 1');
         if (result.rows.length === 0) return res.status(404).send("User not found");
         res.json(result.rows[0]);
     } catch (err) {
@@ -87,8 +90,9 @@ app.post('/add-post', async (req, res) => {
         if (userRes.rows.length === 0) return res.status(400).send("No users exist to make a post.");
         const userId = userRes.rows[0].user_id;
         
+        // FIXED: Target table changed to 'skills' and column name changed to 'type'
         await pool.query(
-            'INSERT INTO posts (user_id, post_type, skill_name, description) VALUES ($1, $2, $3, $4)',
+            'INSERT INTO skills (user_id, type, skill_name, description) VALUES ($1, $2, $3, $4)',
             [userId, post_type, skill_name, description]
         );
         res.redirect('/dashboard.html'); 
@@ -103,8 +107,9 @@ app.get('/api/search-skills', async (req, res) => {
     const { query } = req.query;
     try {
         const searchQuery = `%${query || ''}%`;
+        // FIXED: Query targeted on 'skills' table instead of 'posts'
         const result = await pool.query(
-            'SELECT * FROM posts WHERE skill_name ILIKE $1 OR description ILIKE $1 ORDER BY post_id DESC',
+            'SELECT * FROM skills WHERE skill_name ILIKE $1 OR description ILIKE $1 ORDER BY skill_id DESC',
             [searchQuery]
         );
         res.json(result.rows);
@@ -117,7 +122,8 @@ app.get('/api/search-skills', async (req, res) => {
 app.delete('/api/delete-post/:postId', async (req, res) => {
     const { postId } = req.params;
     try {
-        const result = await pool.query('DELETE FROM posts WHERE post_id = $1', [postId]);
+        // FIXED: Deletes from 'skills' table
+        const result = await pool.query('DELETE FROM skills WHERE skill_id = $1', [postId]);
         if (result.rowCount === 0) {
             return res.status(404).json({ success: false, message: "Post not found" });
         }
@@ -131,41 +137,14 @@ app.delete('/api/delete-post/:postId', async (req, res) => {
 // 9. Load Dynamic Contacts
 app.get('/api/my-contacts', async (req, res) => {
     try {
+        // FIXED: Ordering by 'name' instead of 'username'
         const result = await pool.query(
-            'SELECT user_id, username, pfp_icon FROM users ORDER BY username ASC'
+            'SELECT user_id, name FROM users ORDER BY name ASC'
         );
         res.json(result.rows);
     } catch (err) {
         console.error(err);
         res.status(500).json([]);
-    }
-});
-
-// 10. Update Bio
-app.post('/api/update-bio', async (req, res) => {
-    const { bio } = req.body;
-    try {
-        await pool.query(
-            'UPDATE users SET bio = $1 WHERE user_id = (SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1)',
-            [bio]
-        );
-        res.status(200).json({ success: true, message: "Bio updated!" });
-    } catch (err) {
-        res.status(500).json({ success: false });
-    }
-});
-
-// 11. Update PFP
-app.post('/api/update-pfp', async (req, res) => {
-    const { pfp_icon } = req.body;
-    try {
-        await pool.query(
-            'UPDATE users SET pfp_icon = $1 WHERE user_id = (SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1)',
-            [pfp_icon]
-        );
-        res.status(200).json({ success: true, message: "PFP updated!" });
-    } catch (err) {
-        res.status(500).json({ success: false });
     }
 });
 
@@ -184,7 +163,7 @@ app.post('/api/reply-message', async (req, res) => {
     }
 });
 
-// 13. Get Message History (Cleaned Duplicate)
+// 13. Get Message History
 app.get('/api/get-messages', async (req, res) => {
     const { sender, receiver } = req.query;
     try {
