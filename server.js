@@ -20,9 +20,10 @@ const pool = new Pool({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-// 2.5 Fix for "Cannot GET /" -> Automatically redirects to your login or index page
+
+// 2.5 FIX: Look inside the 'public' folder for index.html to stop 'Cannot GET /' errors
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html')); 
+    res.sendFile(path.join(__dirname, 'public', 'index.html')); 
 });
 
 // 3. The Login Route
