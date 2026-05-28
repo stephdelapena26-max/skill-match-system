@@ -122,7 +122,9 @@
                 contacts.forEach(user => {
                     const contactDiv = document.createElement('div');
                     contactDiv.className = 'contact';
-                    const icon = user.pfp_icon || user.username[0].toUpperCase();
+                    const icon = user.pfp_icon || (user.username ? user.username.charAt(0).toUpperCase(): "?");
+
+
                     contactDiv.innerHTML = `
                         <div class="pfp">${icon}</div>
                         <div class="contact-info">
