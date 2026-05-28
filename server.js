@@ -4,7 +4,6 @@ const path = require('path');
 
 const app = express();
 
-// Hardcoded ang credentials para siguradong walang mali sa environment variables
 const pool = new Pool({
   user: 'postgres',
   host: 'aws-0-ap-northeast-1.pooler.supabase.com',
