@@ -24,9 +24,6 @@ app.get('/', (req, res) => {
 // Registration Route
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
-  
-  console.log("Registering user:", username, email); 
-
   try {
     await pool.query(
       'INSERT INTO users (name, email, password) VALUES ($1, $2, $3)',
@@ -34,8 +31,7 @@ app.post('/register', async (req, res) => {
     );
     res.send('<script>alert("Registration Successful!"); window.location.href = "/index.html";</script>');
   } catch (err) {
-    console.error("DATABASE ERROR DETAILS:", err);
-    res.status(500).send("Database Error: " + err.message);
+    res.status(500).send("Database Error: " + err.message + " | Code: " + err.code);
   }
 });
 
