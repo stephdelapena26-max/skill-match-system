@@ -1,12 +1,12 @@
 CREATE TABLE users (
-    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id SERIAL PRIMARY KEY,
     name VARCHAR(100),
     email VARCHAR(100) UNIQUE,
     password VARCHAR(255)
 );
 
 CREATE TABLE skills (
-    skill_id INT PRIMARY KEY AUTO_INCREMENT,
+    skill_id SERIAL PRIMARY KEY,
     user_id INT,
     skill_name VARCHAR(100),
     description TEXT,

@@ -3,21 +3,28 @@ const { Pool } = require('pg');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
 
-// 1. Connection to pgAdmin Database
+// 1. Dynamic Database Connection (Uses Vercel Env Variables if Live, fallback to Localhost)
+const isProduction = process.env.ENVIRONMENT === 'PRODUCTION';
+
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'skill_match_db',
-    password: 'agua1226', 
-    port: 5432,
+    user: isProduction ? process.env.DB_USER : 'postgres',
+    host: isProduction ? process.env.DB_HOST : 'localhost',
+    database: isProduction ? process.env.DB_NAME : 'skill_match_db',
+    password: isProduction ? process.env.DB_PASSWORD : 'agua1226',
+    port: isProduction ? (process.env.DB_PORT || 5432) : 5432,
+    ssl: isProduction ? { rejectUnauthorized: false } : false // Render requires SSL for cloud connections
 });
 
 // 2. Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('.'));
+app.use(express.static(path.join(__dirname, '.'))); // Standardized static paths
+
+// 2.5 Fix for "Cannot GET /" -> Automatically redirects to your login or index page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html')); 
+});
 
 // 3. The Login Route
 app.post('/login', async (req, res) => {
@@ -28,7 +35,6 @@ app.post('/login', async (req, res) => {
             [email, password]
         );
         if (result.rows.length > 0) {
-            // Send user data back as a response
             const user = result.rows[0];
             res.send(`
                 <script>
@@ -41,6 +47,7 @@ app.post('/login', async (req, res) => {
             res.send('Invalid email or password.');
         }
     } catch (err) {
+        console.error(err);
         res.status(500).send('Server Error');
     }
 });
@@ -55,6 +62,7 @@ app.post('/register', async (req, res) => {
         );
         res.send('<h1>Registration Successful!</h1><a href="/index.html">Click here to Login</a>');
     } catch (err) {
+        console.error(err);
         res.status(500).send('Error creating account.');
     }
 });
@@ -75,8 +83,8 @@ app.get('/api/user-data', async (req, res) => {
 app.post('/add-post', async (req, res) => {
     const { post_type, skill_name, description } = req.body;
     try {
-        // Fetching the user who is posting
         const userRes = await pool.query('SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1');
+        if (userRes.rows.length === 0) return res.status(400).send("No users exist to make a post.");
         const userId = userRes.rows[0].user_id;
         
         await pool.query(
@@ -105,7 +113,7 @@ app.get('/api/search-skills', async (req, res) => {
     }
 });
 
-// 8. Delete Post (CRUD: Delete)
+// 8. Delete Post
 app.delete('/api/delete-post/:postId', async (req, res) => {
     const { postId } = req.params;
     try {
@@ -164,25 +172,19 @@ app.post('/api/update-pfp', async (req, res) => {
 // 12. Reply Message
 app.post('/api/reply-message', async (req, res) => {
     console.log("Data received from frontend:", req.body);
-
     const { message_text, receiverId, senderId } = req.body;
-
     try {
         const queryText = 'INSERT INTO messages (sender_id, receiver_id, message_text) VALUES ($1, $2, $3)';
         const values = [senderId, receiverId, message_text];
-        
         await pool.query(queryText, values);
-        
-        console.log("Message saved successfully!");
         res.status(200).json({ success: true });
     } catch (err) {
-        // 3. This will tell us the EXACT database error in the terminal
         console.error("CRITICAL DATABASE ERROR:", err.message);
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// 12.5 Get Message History (New!)
+// 13. Get Message History (Cleaned Duplicate)
 app.get('/api/get-messages', async (req, res) => {
     const { sender, receiver } = req.query;
     try {
@@ -200,27 +202,12 @@ app.get('/api/get-messages', async (req, res) => {
     }
 });
 
-app.get('/api/get-messages', async (req, res) => {
-    const { sender, receiver } = req.query;
-    try {
-        const result = await pool.query(
-            `SELECT * FROM messages 
-             WHERE (sender_id = $1 AND receiver_id = $2) 
-             OR (sender_id = $2 AND receiver_id = $1) 
-             ORDER BY timestamp ASC`,
-            [sender, receiver]
-        );
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).send("Error loading messages");
-    }
-});
-
 module.exports = app;
 
-if (process.env.ENVIRONMENT === 'LOCAL') {
+// Starts server only if running locally
+if (process.env.ENVIRONMENT !== 'PRODUCTION') {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-        console.log('Server listening on port ${PORT}');
-    });
+        console.log(`Server listening on port ${PORT}`);
+    }); 
 }
