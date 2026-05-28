@@ -1,88 +1,255 @@
-body {
+
+
+/* GOOGLE FONT */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+
+*{
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
-    color: #fff;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* NAV */
-nav {
+
+body{
+    min-height: 100vh;
+    background: linear-gradient(
+        135deg,
+        #0b1023,
+        #1b1445,
+        #2b1e6b
+    );
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 15px 30px;
-    background: rgba(0,0,0,0.2);
-    backdrop-filter: blur(10px);
+    color: white;
+    overflow-x: hidden;
 }
 
-nav a {
+
+/* MAIN CONTAINER */
+.container{
+    width: 90%;
+    max-width: 1200px;
+    padding: 40px;
+    border-radius: 30px;
+
+
+    background: rgba(255,255,255,0.05);
+
+
+    border: 1px solid rgba(255,255,255,0.1);
+
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+
+    box-shadow:
+        0 0 30px rgba(111, 66, 193, 0.35),
+        0 0 80px rgba(86, 11, 173, 0.2);
+}
+
+
+/* TITLE */
+.container h1{
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 15px;
+
+
+    background: linear-gradient(to right, #c084fc, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+/* SUBTITLE */
+.container p{
+    text-align: center;
+    color: #d1d5db;
+    margin-bottom: 35px;
+}
+
+
+/* CARD SECTION */
+.card-wrapper{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+    gap: 25px;
+}
+
+
+.card{
+    padding: 25px;
+    border-radius: 20px;
+
+
+    background: rgba(255,255,255,0.06);
+
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+
+    transition: 0.3s ease;
+}
+
+
+.card:hover{
+    transform: translateY(-8px);
+
+
+    box-shadow:
+        0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+
+.card h2{
+    margin-bottom: 10px;
+    color: #e9d5ff;
+}
+
+
+.card p{
+    text-align: left;
+    font-size: 14px;
+    color: #cbd5e1;
+}
+
+
+/* BUTTON */
+.btn{
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 22px;
+
+
+    border: none;
+    border-radius: 30px;
+
+
+    background: linear-gradient(
+        to right,
+        #7c3aed,
+        #a855f7
+    );
+
+
     color: white;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 500;
+
+
+    transition: 0.3s;
 }
 
-/* CENTER CONTAINER */
-.container {
-    max-width: 700px;
-    margin: 40px auto;
-    padding: 20px;
+
+.btn:hover{
+    transform: scale(1.05);
+
+
+    box-shadow:
+        0 0 15px rgba(168, 85, 247, 0.6);
 }
 
-/* CARD STYLE */
-.content-box, .post {
-    background: rgba(255,255,255,0.12);
-    border-radius: 15px;
-    padding: 20px;
+
+/* LOGIN / SIGNUP MODAL */
+.form-box{
+    width: 400px;
+    padding: 30px;
+
+
+    background: rgba(17, 24, 39, 0.9);
+
+
+    border-radius: 20px;
+
+
+    border: 1px solid rgba(255,255,255,0.1);
+
+
+    box-shadow:
+        0 0 30px rgba(124, 58, 237, 0.35);
+}
+
+
+.form-box h2{
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+
+.input-box{
     margin-bottom: 15px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    backdrop-filter: blur(10px);
 }
 
-/* INPUTS */
-input, textarea, select {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-}
 
-/* BUTTONS */
-button {
+.input-box input{
     width: 100%;
     padding: 12px;
-    border: none;
+
+
     border-radius: 10px;
-    background: #ff4ecd;
+    border: 1px solid rgba(255,255,255,0.1);
+
+
+    background: rgba(255,255,255,0.05);
     color: white;
-    font-weight: bold;
+}
+
+
+.input-box input::placeholder{
+    color: #cbd5e1;
+}
+
+
+.form-btn{
+    width: 100%;
+    padding: 12px;
+
+
+    border: none;
+    border-radius: 12px;
+
+
+    background: linear-gradient(
+        to right,
+        #7c3aed,
+        #9333ea
+    );
+
+
+    color: white;
+    font-weight: 600;
     cursor: pointer;
-    transition: 0.2s;
+
+
+    transition: 0.3s;
 }
 
-button:hover {
-    background: #ff2bbd;
+
+.form-btn:hover{
+    box-shadow:
+        0 0 20px rgba(147, 51, 234, 0.6);
 }
 
-/* FEED POST */
-.post {
-    transition: 0.2s;
-}
 
-.post:hover {
-    transform: translateY(-3px);
-}
+/* RESPONSIVE */
+@media(max-width:768px){
 
-/* AVATAR */
-.avatar {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: white;
-    color: #6a11cb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
+
+    .container{
+        padding: 25px;
+    }
+
+
+    .container h1{
+        font-size: 2rem;
+    }
+
+
+    .form-box{
+        width: 100%;
+    }
 }
