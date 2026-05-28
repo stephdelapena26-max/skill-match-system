@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post a Skill - Skill Match</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <form action="dashboard.html">
+        <h1>Post a New Skill</h1>
+        
+        <label>Skill Name:</label>
+        <input type="text" placeholder="e.g., Java Programming" required>
+        
+        <label>Description:</label>
+        <textarea placeholder="Describe what you can offer or what you need..." rows="4"></textarea>
+        
+        <label>Type:</label>
+        <select>
+            <option value="offer">I am Offering this skill</option>
+            <option value="request">I am Requesting this skill</option>
+        </select>
+        
+        <button type="submit">Post Skill</button>
+        <a href="dashboard.html" style="display:block; text-align:center; margin-top:10px;">Cancel</a>
+    </form>
+</body>
+</html>
