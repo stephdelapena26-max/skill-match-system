@@ -3,8 +3,7 @@ const { Pool } = require('pg');
 const path = require('path');
 const app = express();
 
-const { Pool } = require('pg');
-
+// Use the connection string with SSL configuration
 const pool = new Pool({
   connectionString: 'postgresql://postgres.wotzqohzupzsilmtuehb:S6WPvBtt4Zncm0Q8@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres',
   ssl: {
@@ -18,11 +17,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
+  
   try {
-    await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [username, email, password]);
-    res.send('<script>alert("Registration Successful!"); window.location.href = "/";</script>');
+    // Standard query - ensure the column names match your SQL exactly
+    const query = 'INSERT INTO users (name, email, password) VALUES ($1, $2, $3)';
+    await pool.query(query, [username, email, password]);
+    
+    res.send('<script>alert("Registration Successful!"); window.location.href = "/index.html";</script>');
   } catch (err) {
-    res.status(500).send("DB Error: " + err.message);
+    // THIS WILL TELL US THE REAL ERROR INSTEAD OF CRASHING
+    console.error("DEBUG ERROR:", err);
+    res.status(500).send("Database Error: " + err.message);
   }
 });
 
