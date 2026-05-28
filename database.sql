@@ -1,4 +1,3 @@
-/* User Table - From User Class */
 CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100),
@@ -6,7 +5,6 @@ CREATE TABLE users (
     password VARCHAR(255)
 );
 
-/* Skill Table - 1:N Relationship with User */
 CREATE TABLE skills (
     skill_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,

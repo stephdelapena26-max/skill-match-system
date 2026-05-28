@@ -216,9 +216,13 @@ app.get('/api/get-messages', async (req, res) => {
     }
 });
 
-// 13. Start Server
-app.listen(PORT, () => {
-    console.log(`-----------------------------------------`);
-    console.log(`Skill Match Server Live: http://localhost:${PORT}`);
-    console.log(`-----------------------------------------`);
-});
+// Export the app for Vercel's serverless environment
+module.exports = app;
+
+// Only spin up the traditional listener if running locally
+if (process.env.ENVIRONMENT === 'LOCAL') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(Server listening on port ${PORT});
+    });
+}
