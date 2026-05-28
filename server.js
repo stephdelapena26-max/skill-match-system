@@ -8,12 +8,12 @@ const app = express();
 const isProduction = process.env.ENVIRONMENT === 'PRODUCTION';
 
 const pool = new Pool({
-    user: isProduction ? process.env.DB_USER : 'postgres',
-    host: isProduction ? process.env.DB_HOST : 'localhost',
-    database: isProduction ? process.env.DB_NAME : 'skill_match_db',
-    password: isProduction ? process.env.DB_PASSWORD : 'agua1226',
-    port: isProduction ? (process.env.DB_PORT || 5432) : 5432,
-    ssl: isProduction ? { rejectUnauthorized: false } : false
+    user: 'skill_match_user',
+    host: 'dpg-d8bve3bbc2fs738mlh60-a.onrender.com',
+    database: 'skill_match_db',
+    password: 'azeKmqyRDdRZzZNqqn6Fxaul6lEYqqn',
+    port: 5432,
+    ssl: { rejectUnauthorized: false }
 });
 
 // CLOUD INITIALIZER: This bypasses your home internet wall and runs directly inside Vercel's network!
