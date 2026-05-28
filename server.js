@@ -6,7 +6,14 @@ const path = require('path');
 const app = express();
 
 const pool = new Pool({
-  connectionString: 'postgresql://postgres.wotzqohzupzsilmtuehb:S6WPvBtt4Zncm0Q8@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require'
+  // Use the connection string exactly as provided by Supabase
+  connectionString: 'postgresql://postgres.wotzqohzupzsilmtuehb:S6WPvBtt4Zncm0Q8@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require',
+  // Explicitly set the host and port
+  host: 'aws-0-ap-northeast-1.pooler.supabase.com',
+  port: 6543,
+  user: 'postgres.wotzqohzupzsilmtuehb',
+  password: 'S6WPvBtt4Zncm0Q8',
+  database: 'postgres'
 });
 
 app.use(express.json());
