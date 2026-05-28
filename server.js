@@ -4,20 +4,59 @@ const path = require('path');
 
 const app = express();
 
-// 1. Database Connection (Forces connection string on production)
+// 1. Dynamic Database Connection
 const isProduction = process.env.ENVIRONMENT === 'PRODUCTION';
 
 const pool = new Pool({
-    connectionString: isProduction ? process.env.DATABASE_URL : 'postgresql://postgres:agua1226@localhost:5432/skill_match_db',
+    user: isProduction ? process.env.DB_USER : 'postgres',
+    host: isProduction ? process.env.DB_HOST : 'localhost',
+    database: isProduction ? process.env.DB_NAME : 'skill_match_db',
+    password: isProduction ? process.env.DB_PASSWORD : 'agua1226',
+    port: isProduction ? (process.env.DB_PORT || 5432) : 5432,
     ssl: isProduction ? { rejectUnauthorized: false } : false
 });
+
+// AUTO-DB INITIALIZER: Creates your tables automatically if they don't exist
+async function initDb() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                user_id SERIAL PRIMARY KEY,
+                name VARCHAR(100),
+                email VARCHAR(100) UNIQUE,
+                password VARCHAR(255)
+            );
+        `);
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS skills (
+                skill_id SERIAL PRIMARY KEY,
+                user_id INT REFERENCES users(user_id),
+                skill_name VARCHAR(100),
+                description TEXT,
+                type VARCHAR(20)
+            );
+        `);
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS messages (
+                message_id SERIAL PRIMARY KEY,
+                sender_id INT,
+                receiver_id INT,
+                message_text TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        console.log("Database tables checked/created successfully!");
+    } catch (err) {
+        console.error("Error initializing database tables:", err.message);
+    }
+}
+initDb();
 
 // 2. Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 2.5 Redirect root URL to public index layout
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html')); 
 });
