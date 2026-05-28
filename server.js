@@ -3,10 +3,11 @@ const { Pool } = require('pg');
 const path = require('path');
 const app = express();
 
-// Use the standard Supabase Transaction Mode connection string
-// Ensure there are no spaces or extra characters in this string
 const pool = new Pool({
-  connectionString: 'postgresql://postgres.wotzqohzupzsilmtuehb:S6WPvBtt4Zncm0Q8@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require'
+  connectionString: 'postgresql://postgres.wotzqohzupzsilmtuehb:S6WPvBtt4Zncm0Q8@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require',
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 app.use(express.json());
