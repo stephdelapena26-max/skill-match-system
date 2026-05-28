@@ -1,24 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Search Skills - Skill Match</title>
-    <link rel="stylesheet" href="style.css">
+<title>Search</title>
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <section>
-        <h1>Find a Skill Match</h1>
-        <input type="text" placeholder="Search for skills (e.g. Web Design)...">
-        <button type="button">Search</button>
-    </section>
 
-    <section style="margin-top: 20px;">
-        <h3>Available Matches</h3>
-        <div style="border: 1px solid #E0B0FF; padding: 10px; border-radius: 5px;">
-            <h4>Graphic Design</h4>
-            <p>Posted by: Alex</p>
-            <a href="messages.html"><button>Send Message / Match</button></a>
-        </div>
-    </section>
+<div class="content-box">
+
+<input id="q">
+<button onclick="search()">Search</button>
+
+<div id="results"></div>
+
+</div>
+
+<script>
+async function search(){
+const q=document.getElementById("q").value;
+
+const res=await fetch("/api/search-skills?query="+q);
+const data=await res.json();
+
+document.getElementById("results").innerHTML=
+data.map(p=>`
+<div>
+<h3>${p.skill_name}</h3>
+<p>${p.description}</p>
+</div>
+`).join("");
+}
+</script>
+
 </body>
 </html>

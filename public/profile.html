@@ -1,178 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Skill Match</title>
-    <link rel="stylesheet" href="style.css">
+<title>Profile</title>
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
+<div class="content-box">
 
-    <nav>
-        <div class="logo"><strong>Skill Match</strong></div>
-        <ul>
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="messages.html">Messages</a></li>
-            <li><a href="index.html" class="logout-btn">Log Out</a></li>
-        </ul>
-    </nav>
+<h2>Profile</h2>
 
+<h3 id="name"></h3>
+<p id="email"></p>
 
-    <div class="container">
-       
-        <div class="content-box" style="text-align: center;">
-            <div id="pfp-container" onclick="updatePFP()" style="width: 120px; height: 120px; background: #9370DB; border-radius: 50%; margin: 0 auto 10px; border: 4px solid #E0B0FF; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; position: relative;">
-                <span id="pfp-icon" style="font-size: 3rem; color: white; font-weight: bold;">👤</span>
-            </div>
-            <p style="font-size: 0.8rem; color: #6A5ACD; margin-bottom: 20px;">Click to change icon</p>
+<textarea id="bio"></textarea>
+<button onclick="save()">Save</button>
 
+</div>
 
-            <h1 id="profile-username" style="margin: 0; color: #4B0082;">abcde</h1>
-            <p id="profile-email" style="color: #6A5ACD; margin-top: 5px;">abcde@gmail.com</p>
-           
-            <hr style="border: 0.5px solid #eee; margin: 25px 0;">
+<script>
+const userId = localStorage.getItem("userId");
 
+if (!userId) window.location.href="/index.html";
 
-            <div style="text-align: left;">
-                <label style="font-weight: bold; color: #4B0082;">About Me:</label>
-                <textarea id="profile-bio" style="width: 100%; height: 100px; padding: 12px; margin-top: 10px; border: 1px dashed #9370DB; border-radius: 10px; font-family: inherit; resize: none;"></textarea>
-               
-                <button class="submit-btn" id="save-btn" onclick="saveBio()" style="margin-top: 15px;">Save Changes</button>
-            </div>
-        </div>
+async function load(){
+const res = await fetch("/api/user-data?userId="+userId);
+const u = await res.json();
 
-
-    </div>
-
-
-    <script>
-        async function updatePFP() {
-
- const newIcon = prompt(
-  "Enter emoji or letter:"
- );
-
- if (!newIcon) return;
-
- const userId =
- localStorage.getItem('userId');
-
- try {
-
-  const response = await fetch(
-   '/api/update-pfp',
-   {
-    method: 'POST',
-
-    headers: {
-     'Content-Type': 'application/json'
-    },
-
-    body: JSON.stringify({
-     pfp_icon: newIcon,
-     userId: userId
-    })
-   }
-  );
-
-  if (response.ok) {
-
-   document.getElementById(
-    'pfp-icon'
-   ).innerText = newIcon;
-  }
-
- } catch (err) {
-
-  console.log(err);
-
- }
+document.getElementById("name").innerText=u.name;
+document.getElementById("email").innerText=u.email;
+document.getElementById("bio").value=u.bio||"";
 }
 
-        async function loadProfile() {
+async function save(){
+await fetch("/api/update-bio",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+userId,
+bio:document.getElementById("bio").value
+})
+});
 
- const userId = localStorage.getItem('userId');
-
- try {
-
-  const res = await fetch(
-   `/api/user-data?userId=${userId}`
-  );
-
-  const user = await res.json();
-
-  document.getElementById(
-   'profile-username'
-  ).innerText = user.username;
-
-  document.getElementById(
-   'profile-email'
-  ).innerText = user.email;
-
-  document.getElementById(
-   'profile-bio'
-  ).value = user.bio || "";
-
-  if (user.pfp_icon) {
-
-   document.getElementById(
-    'pfp-icon'
-   ).innerText = user.pfp_icon;
-
-  } else {
-
-   document.getElementById(
-    'pfp-icon'
-   ).innerText =
-    user.username.charAt(0).toUpperCase();
-  }
-
- } catch (err) {
-
-  console.log(err);
-
- }
+alert("Saved");
 }
 
+load();
+</script>
 
-        async function saveBio() {
-
- const newBio =
- document.getElementById('profile-bio').value;
-
- const userId =
- localStorage.getItem('userId');
-
- try {
-
-  const response = await fetch(
-   '/api/update-bio',
-   {
-    method: 'POST',
-
-    headers: {
-     'Content-Type': 'application/json'
-    },
-
-    body: JSON.stringify({
-     bio: newBio,
-     userId: userId
-    })
-   }
-  );
-
-  if (response.ok) {
-   alert("Profile updated!");
-  }
-
- } catch (err) {
-
-  console.log(err);
-
- }
-}
-        loadProfile();
-    </script>
 </body>
 </html>
