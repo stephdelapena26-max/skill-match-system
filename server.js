@@ -19,8 +19,7 @@ const pool = new Pool({
 // 2. Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '.'))); // Standardized static paths
-
+app.use(express.static(path.join(__dirname, 'public')));
 // 2.5 Fix for "Cannot GET /" -> Automatically redirects to your login or index page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html')); 
