@@ -1,25 +1,364 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+/* ============================================================
+   CSS VARIABLES
+============================================================ */
+:root {
+  --purple-deep:    #3b0764;
+  --purple-mid:     #6d28d9;
+  --purple-light:   #a78bfa;
+  --purple-pale:    #ddd6fe;
+  --indigo:         #4f46e5;
+  --indigo-light:   #818cf8;
+  --pink:           #c026d3;
+
+  --glass-bg:       rgba(255, 255, 255, 0.18);
+  --glass-border:   rgba(255, 255, 255, 0.35);
+  --glass-shadow:   0 8px 32px rgba(91, 33, 182, 0.18);
+  --glass-blur:     blur(18px);
+
+  --text-dark:      #1e1b4b;
+  --text-mid:       #4c1d95;
+  --text-soft:      rgba(30, 27, 75, 0.65);
+
+  --radius-lg:      22px;
+  --radius-md:      14px;
+  --radius-sm:      10px;
+
+  --nav-height:     68px;
 }
 
-body{
+/* ============================================================
+   RESET & BASE
+============================================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    font-family:'Poppins', sans-serif;
+html { scroll-behavior: smooth; }
 
-    background:
-    linear-gradient(
-    135deg,
-    #e0e7ff,
-    #c7d2fe,
-    #ddd6fe
-    );
+body {
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  color: var(--text-dark);
+  background:
+    radial-gradient(ellipse at 20% 20%, #c4b5fd 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 10%, #a5b4fc 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 80%, #e879f9 0%, transparent 45%),
+    radial-gradient(ellipse at 10% 80%, #818cf8 0%, transparent 50%),
+    #d8b4fe;
+  background-attachment: fixed;
+}
 
-    color:#1e1b4b;
+/* ============================================================
+   NAVIGATION
+============================================================ */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 36px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 20px rgba(91, 33, 182, 0.12);
+}
 
-    min-height:100vh;
+.logo {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--purple-deep), var(--indigo), var(--pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
 
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+nav ul li a {
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-mid);
+  padding: 8px 18px;
+  border-radius: 50px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+nav ul li a:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: var(--glass-border);
+  color: var(--purple-deep);
+}
+
+nav ul li a.logout-btn {
+  background: rgba(109, 40, 217, 0.12);
+  border-color: rgba(109, 40, 217, 0.25);
+  color: var(--purple-mid);
+}
+
+nav ul li a.logout-btn:hover {
+  background: rgba(109, 40, 217, 0.22);
+}
+
+/* ============================================================
+   GLASS CARD / CONTENT BOX
+============================================================ */
+.glass,
+.content-box,
+.post-card,
+.profile-card,
+.login-card,
+.search-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  padding: 36px;
+}
+
+.content-box h1,
+.post-card h1,
+.profile-card h1,
+.login-card h1,
+.search-card h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--purple-deep);
+  margin-bottom: 6px;
+}
+
+.content-box h3 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  color: var(--text-mid);
+}
+
+/* ============================================================
+   INPUTS, TEXTAREAS, SELECTS
+============================================================ */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 13px 18px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid rgba(167, 139, 250, 0.35);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(8px);
+  color: var(--text-dark);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  display: block;
+  margin-bottom: 16px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(76, 29, 149, 0.45);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--purple-light);
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+}
+
+select {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236d28d9' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 42px;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+button,
+input[type="submit"] {
+  width: 100%;
+  padding: 13px 24px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: linear-gradient(135deg, var(--purple-mid), var(--indigo));
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(109, 40, 217, 0.35);
+  margin-bottom: 0;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(109, 40, 217, 0.45);
+  background: linear-gradient(135deg, #7c3aed, var(--indigo));
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* ============================================================
+   MAIN CONTAINER
+============================================================ */
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 36px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ============================================================
+   POST CARDS (FEED)
+============================================================ */
+.post-card {
+  padding: 22px 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(91, 33, 182, 0.22);
+}
+
+.post-card h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--purple-deep);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.post-card p {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.post-card button {
+  width: auto;
+  padding: 9px 20px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   BADGE
+============================================================ */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 50px;
+  background: rgba(167, 139, 250, 0.25);
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  color: var(--purple-mid);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* ============================================================
+   SEARCH SECTION
+============================================================ */
+.search-section {
+  display: flex;
+  gap: 12px;
+}
+
+.search-section input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.search-section button {
+  width: 130px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   LINKS
+============================================================ */
+a {
+  color: var(--purple-mid);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--indigo);
+  text-decoration: underline;
+}
+
+/* ============================================================
+   SCROLLBAR
+============================================================ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.4);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(109, 40, 217, 0.5);
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 600px) {
+  nav { padding: 0 18px; }
+  .container { padding: 20px 14px; }
+  .content-box, .post-card { padding: 22px 18px; }
+  nav ul { gap: 4px; }
+  nav ul li a { padding: 6px 12px; font-size: 0.82rem; }
 }

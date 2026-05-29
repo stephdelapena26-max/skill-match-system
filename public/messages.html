@@ -1,680 +1,348 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>
-Messages - Skill Match
-</title>
-
-<link rel="stylesheet" href="style.css">
-
-<style>
-
-body{
-
-margin:0;
-padding:0;
-
-}
-
-.chat-container{
-
-display:flex;
-
-height:calc(100vh - 70px);
-
-}
-
-.sidebar{
-
-width:320px;
-
-background:white;
-
-border-right:1px solid #ddd;
-
-overflow-y:auto;
-
-}
-
-.sidebar-header{
-
-padding:20px;
-
-font-size:1.3rem;
-
-font-weight:bold;
-
-color:#4B0082;
-
-border-bottom:1px solid #eee;
-
-}
-
-.contact{
-
-display:flex;
-
-align-items:center;
-
-gap:15px;
-
-padding:15px 20px;
-
-cursor:pointer;
-
-transition:0.2s;
-
-border-bottom:1px solid #f2f2f2;
-
-}
-
-.contact:hover{
-
-background:#f5f3ff;
-
-}
-
-.contact.active{
-
-background:#ede9fe;
-
-}
-
-.pfp{
-
-width:50px;
-height:50px;
-
-border-radius:50%;
-
-background:#6366f1;
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-color:white;
-
-font-weight:bold;
-
-font-size:1.2rem;
-
-flex-shrink:0;
-
-}
-
-.chat-area{
-
-flex:1;
-
-display:flex;
-
-flex-direction:column;
-
-background:#fafafa;
-
-}
-
-.chat-header{
-
-padding:20px;
-
-background:white;
-
-border-bottom:1px solid #eee;
-
-font-weight:bold;
-
-font-size:1.1rem;
-
-display:flex;
-
-align-items:center;
-
-gap:10px;
-
-}
-
-.messages{
-
-flex:1;
-
-padding:20px;
-
-overflow-y:auto;
-
-display:flex;
-
-flex-direction:column;
-
-gap:12px;
-
-}
-
-.message-row{
-
-display:flex;
-
-}
-
-.sent-row{
-
-justify-content:flex-end;
-
-}
-
-.message{
-
-max-width:70%;
-
-padding:12px 18px;
-
-border-radius:20px;
-
-font-size:0.95rem;
-
-word-wrap:break-word;
-
-}
-
-.sent{
-
-background:#6366f1;
-
-color:white;
-
-border-bottom-right-radius:5px;
-
-}
-
-.received{
-
-background:white;
-
-color:#333;
-
-border-bottom-left-radius:5px;
-
-box-shadow:0 2px 8px rgba(0,0,0,0.08);
-
-}
-
-.chat-input{
-
-display:flex;
-
-padding:15px;
-
-background:white;
-
-border-top:1px solid #eee;
-
-gap:10px;
-
-}
-
-.chat-input textarea{
-
-flex:1;
-
-resize:none;
-
-height:50px;
-
-border-radius:15px;
-
-padding:12px;
-
-}
-
-.chat-input button{
-
-width:120px;
-
-}
-
-.empty-chat{
-
-margin:auto;
-
-font-size:1.2rem;
-
-opacity:0.6;
-
-}
-
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages - Skill Match</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { margin: 0; padding: 0; }
+
+    .chat-container {
+      display: flex;
+      height: calc(100vh - var(--nav-height));
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-right: 1px solid var(--glass-border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 20px 22px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--purple-deep);
+      border-bottom: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .contact {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(221, 214, 254, 0.3);
+      transition: background 0.18s;
+    }
+
+    .contact:hover  { background: rgba(255, 255, 255, 0.28); }
+    .contact.active { background: rgba(167, 139, 250, 0.22); }
+
+    .pfp {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6d28d9, #4f46e5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .contact-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+    }
+
+    /* ── CHAT AREA ── */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.08);
+      min-width: 0;
+    }
+
+    .chat-header {
+      padding: 18px 24px;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: var(--glass-blur);
+      border-bottom: 1px solid var(--glass-border);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--purple-deep);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 20px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message-row         { display: flex; }
+    .sent-row            { justify-content: flex-end; }
+
+    .message {
+      max-width: 68%;
+      padding: 11px 17px;
+      border-radius: 18px;
+      font-size: 0.92rem;
+      word-wrap: break-word;
+      line-height: 1.5;
+    }
+
+    .sent {
+      background: linear-gradient(135deg, #6d28d9, #4f46e5);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .received {
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--glass-border);
+      color: var(--text-dark);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: var(--glass-blur);
+      border-top: 1px solid var(--glass-border);
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .chat-input textarea {
+      flex: 1;
+      resize: none;
+      height: 48px;
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-bottom: 0;
+      font-size: 0.92rem;
+    }
+
+    .chat-input button {
+      width: 100px;
+      height: 48px;
+      flex-shrink: 0;
+      font-size: 0.88rem;
+    }
+
+    .empty-chat {
+      margin: auto;
+      text-align: center;
+      opacity: 0.55;
+      font-size: 1rem;
+    }
+
+    .empty-chat .icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .sidebar { width: 220px; }
+    }
+  </style>
 </head>
-
 <body>
 
 <nav>
-
-<div class="logo">
-
-Skill Match
-
-</div>
-
-<ul>
-
-<li>
-<a href="dashboard.html">
-Dashboard
-</a>
-</li>
-
-<li>
-<a href="profile.html">
-Profile
-</a>
-</li>
-
-<li>
-<a
-href="index.html"
-class="logout-btn"
-onclick="logoutUser()"
->
-Logout
-</a>
-</li>
-
-</ul>
-
+  <div class="logo">Skill Match</div>
+  <ul>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="profile.html">Profile</a></li>
+    <li><a href="index.html" class="logout-btn" onclick="logoutUser()">Logout</a></li>
+  </ul>
 </nav>
 
 <div class="chat-container">
 
-<!-- SIDEBAR -->
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">💬 Chats</div>
+    <div id="contacts-container"></div>
+  </div>
 
-<div class="sidebar">
+  <!-- CHAT AREA -->
+  <div class="chat-area">
 
-<div class="sidebar-header">
+    <div class="chat-header" id="chatHeader">
+      Select a conversation
+    </div>
 
-Chats
+    <div class="messages" id="chatMessages">
+      <div class="empty-chat">
+        <div class="icon">💬</div>
+        <p>Select someone to start chatting</p>
+      </div>
+    </div>
 
-</div>
+    <form class="chat-input" id="messageForm">
+      <textarea id="messageInput" placeholder="Type a message..." required></textarea>
+      <button type="submit">Send</button>
+    </form>
 
-<div id="contacts-container">
-
-</div>
-
-</div>
-
-<!-- CHAT AREA -->
-
-<div class="chat-area">
-
-<div
-class="chat-header"
-id="chatHeader"
->
-
-Select a chat
-
-</div>
-
-<div
-class="messages"
-id="chatMessages"
->
-
-<div class="empty-chat">
-
-Start messaging someone
-
-</div>
-
-</div>
-
-<form
-class="chat-input"
-id="messageForm"
->
-
-<textarea
-id="messageInput"
-placeholder="Type a message..."
-required
-></textarea>
-
-<button type="submit">
-
-Send
-
-</button>
-
-</form>
-
-</div>
+  </div>
 
 </div>
 
 <script>
-
-/* ===================================
-   USER DATA
-=================================== */
-
-const currentUserId =
-localStorage.getItem('userId');
-
-if(!currentUserId){
-
-window.location.href =
-'index.html';
-
-}
-
-let activeReceiverId = null;
-
-/* ===================================
-   LOAD CONTACTS
-=================================== */
-
-async function loadContacts(){
-
-try{
-
-const res =
-await fetch('/api/my-contacts');
-
-const users =
-await res.json();
-
-const container =
-document.getElementById(
-'contacts-container'
-);
-
-container.innerHTML='';
-
-users.forEach(user=>{
-
-if(user.user_id == currentUserId)
-return;
-
-const div =
-document.createElement('div');
-
-div.className='contact';
-
-const icon =
-user.pfp_icon ||
-user.username[0].toUpperCase();
-
-div.innerHTML=`
-
-<div class="pfp">
-
-${icon}
-
-</div>
-
-<div>
-
-<strong>
-
-${user.username}
-
-</strong>
-
-</div>
-
-`;
-
-div.onclick=()=>{
-
-document
-.querySelectorAll('.contact')
-.forEach(c=>{
-
-c.classList.remove('active');
-
-});
-
-div.classList.add('active');
-
-openChat(
-user.user_id,
-user.username,
-icon
-);
-
-};
-
-container.appendChild(div);
-
-});
-
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-
-/* ===================================
-   OPEN CHAT
-=================================== */
-
-function openChat(
-userId,
-username,
-icon
-){
-
-activeReceiverId=userId;
-
-document.getElementById(
-'chatHeader'
-).innerHTML=`
-
-<div class="pfp">
-
-${icon}
-
-</div>
-
-${username}
-
-`;
-
-loadMessages();
-
-}
-
-/* ===================================
-   LOAD MESSAGES
-=================================== */
-
-async function loadMessages(){
-
-if(!activeReceiverId)return;
-
-try{
-
-const res =
-await fetch(
-
-`/api/get-messages?sender=${currentUserId}&receiver=${activeReceiverId}`
-
-);
-
-const messages =
-await res.json();
-
-const container =
-document.getElementById(
-'chatMessages'
-);
-
-container.innerHTML='';
-
-messages.forEach(msg=>{
-
-const row =
-document.createElement('div');
-
-const isMine =
-msg.sender_id ==
-currentUserId;
-
-row.className=
-isMine
-?
-'message-row sent-row'
-:
-'message-row';
-
-row.innerHTML=`
-
-<div class="message ${isMine ? 'sent' : 'received'}">
-
-${msg.message_text}
-
-</div>
-
-`;
-
-container.appendChild(row);
-
-});
-
-container.scrollTop =
-container.scrollHeight;
-
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-
-/* ===================================
-   SEND MESSAGE
-=================================== */
-
-document.getElementById(
-'messageForm'
-).addEventListener(
-'submit',
-async(e)=>{
-
-e.preventDefault();
-
-if(!activeReceiverId){
-
-alert(
-'Select a user first'
-);
-
-return;
-
-}
-
-const input =
-document.getElementById(
-'messageInput'
-);
-
-const text =
-input.value;
-
-try{
-
-const res =
-await fetch(
-
-'/api/reply-message',
-
-{
-method:'POST',
-
-headers:{
-'Content-Type':
-'application/json'
-},
-
-body:JSON.stringify({
-
-message_text:text,
-
-receiverId:
-activeReceiverId,
-
-senderId:
-currentUserId
-
-})
-
-}
-
-);
-
-const data =
-await res.json();
-
-if(data.success){
-
-input.value='';
-
-loadMessages();
-
-}
-
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-);
-
-/* ===================================
-   AUTO REFRESH
-=================================== */
-
-setInterval(()=>{
-
-if(activeReceiverId){
-
-loadMessages();
-
-}
-
-},3000);
-
-/* ===================================
-   LOGOUT
-=================================== */
-
-function logoutUser(){
-
-localStorage.clear();
-
-}
-
-/* ===================================
-   INITIALIZE
-=================================== */
-
-loadContacts();
-
+  const currentUserId = localStorage.getItem('userId');
+  if (!currentUserId) window.location.href = 'index.html';
+
+  let activeReceiverId   = null;
+  let activeReceiverName = '';
+  let refreshTimer       = null;
+
+  /* ── LOAD CONTACTS ── */
+  async function loadContacts() {
+    try {
+      const res   = await fetch('/api/my-contacts');
+      const users = await res.json();
+      const box   = document.getElementById('contacts-container');
+      box.innerHTML = '';
+
+      users.forEach(user => {
+        if (user.user_id == currentUserId) return;
+
+        const icon = user.pfp_icon || user.username[0].toUpperCase();
+        const div  = document.createElement('div');
+        div.className = 'contact';
+        div.innerHTML = `
+          <div class="pfp">${icon}</div>
+          <div class="contact-name">${escHtml(user.username)}</div>`;
+
+        div.onclick = () => {
+          document.querySelectorAll('.contact').forEach(c => c.classList.remove('active'));
+          div.classList.add('active');
+          openChat(user.user_id, user.username, icon);
+        };
+
+        box.appendChild(div);
+
+        /* Auto-open if coming from dashboard */
+        const selected = localStorage.getItem('selectedUserId');
+        if (selected && user.user_id == selected) {
+          div.click();
+          localStorage.removeItem('selectedUserId');
+        }
+      });
+    } catch (err) { console.log(err); }
+  }
+
+  /* ── OPEN CHAT ── */
+  function openChat(userId, username, icon) {
+    activeReceiverId   = userId;
+    activeReceiverName = username;
+
+    document.getElementById('chatHeader').innerHTML =
+      `<div class="pfp" style="width:36px;height:36px;font-size:0.9rem;">${icon}</div>${escHtml(username)}`;
+
+    loadMessages();
+    clearInterval(refreshTimer);
+    refreshTimer = setInterval(loadMessages, 3000);
+  }
+
+  /* ── LOAD MESSAGES ── */
+  async function loadMessages() {
+    if (!activeReceiverId) return;
+
+    try {
+      const res      = await fetch(`/api/get-messages?sender=${currentUserId}&receiver=${activeReceiverId}`);
+      const messages = await res.json();
+      const box      = document.getElementById('chatMessages');
+
+      const wasAtBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+
+      box.innerHTML = '';
+
+      if (messages.length === 0) {
+        box.innerHTML = `<div class="empty-chat"><div class="icon">✉️</div><p>No messages yet. Say hi!</p></div>`;
+        return;
+      }
+
+      messages.forEach(msg => {
+        const isMine = msg.sender_id == currentUserId;
+        const row    = document.createElement('div');
+        row.className = `message-row ${isMine ? 'sent-row' : ''}`;
+        row.innerHTML = `<div class="message ${isMine ? 'sent' : 'received'}">${escHtml(msg.message_text)}</div>`;
+        box.appendChild(row);
+      });
+
+      if (wasAtBottom) box.scrollTop = box.scrollHeight;
+    } catch (err) { console.log(err); }
+  }
+
+  /* ── SEND MESSAGE ── */
+  document.getElementById('messageForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!activeReceiverId) { alert('Select a user first.'); return; }
+
+    const input = document.getElementById('messageInput');
+    const text  = input.value.trim();
+    if (!text) return;
+
+    try {
+      const res  = await fetch('/api/reply-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message_text: text, receiverId: activeReceiverId, senderId: currentUserId })
+      });
+      const data = await res.json();
+      if (data.success) { input.value = ''; loadMessages(); }
+    } catch (err) { console.log(err); }
+  });
+
+  /* Ctrl+Enter to send */
+  document.getElementById('messageInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('messageForm').requestSubmit(); }
+  });
+
+  /* ── UTILS ── */
+  function logoutUser() { localStorage.clear(); }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  loadContacts();
 </script>
 
 </body>
-
 </html>

@@ -1,322 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Skill - Skill Match</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .post-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: calc(100vh - var(--nav-height));
+      padding: 40px 20px;
+    }
 
-<meta charset="UTF-8">
+    .post-form-card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--glass-shadow);
+      padding: 40px;
+      width: 100%;
+      max-width: 620px;
+      animation: fadeUp 0.45s ease both;
+    }
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-<title>
-Post Skill - Skill Match
-</title>
+    .post-form-card h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--purple-deep);
+      margin-bottom: 6px;
+    }
 
-<link rel="stylesheet" href="style.css">
+    .post-form-card .subtitle {
+      color: var(--text-soft);
+      font-size: 0.92rem;
+      margin-bottom: 30px;
+    }
 
-<style>
+    .post-form-card textarea {
+      resize: none;
+      height: 140px;
+    }
 
-body{
+    .form-buttons {
+      display: flex;
+      gap: 14px;
+      margin-top: 8px;
+    }
 
-margin:0;
-padding:0;
+    .cancel-btn {
+      background: rgba(239, 68, 68, 0.15) !important;
+      color: #b91c1c !important;
+      border: 1px solid rgba(239, 68, 68, 0.3) !important;
+      box-shadow: none !important;
+    }
 
-}
-
-.post-wrapper{
-
-display:flex;
-
-justify-content:center;
-align-items:center;
-
-min-height:calc(100vh - 70px);
-
-padding:30px;
-
-}
-
-.post-card{
-
-background:white;
-
-width:100%;
-max-width:650px;
-
-padding:40px;
-
-border-radius:25px;
-
-box-shadow:
-0 10px 30px rgba(0,0,0,0.15);
-
-}
-
-.post-card h1{
-
-margin-top:0;
-
-font-size:2rem;
-
-color:#4B0082;
-
-margin-bottom:10px;
-
-}
-
-.post-card p{
-
-opacity:0.7;
-
-margin-bottom:30px;
-
-}
-
-label{
-
-display:block;
-
-margin-bottom:8px;
-
-font-weight:bold;
-
-color:#4B0082;
-
-}
-
-.post-card input,
-.post-card textarea,
-.post-card select{
-
-margin-bottom:20px;
-
-}
-
-.post-card textarea{
-
-resize:none;
-
-height:140px;
-
-}
-
-.form-buttons{
-
-display:flex;
-
-gap:15px;
-
-margin-top:20px;
-
-}
-
-.cancel-btn{
-
-background:#ef4444;
-
-}
-
-.cancel-btn:hover{
-
-background:#dc2626;
-
-}
-
-</style>
-
+    .cancel-btn:hover {
+      background: rgba(239, 68, 68, 0.25) !important;
+      transform: translateY(-2px) !important;
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- NAVBAR -->
-
 <nav>
-
-<div class="logo">
-
-Skill Match
-
-</div>
-
-<ul>
-
-<li>
-<a href="dashboard.html">
-Dashboard
-</a>
-</li>
-
-<li>
-<a href="messages.html">
-Messages
-</a>
-</li>
-
-<li>
-<a href="profile.html">
-Profile
-</a>
-</li>
-
-<li>
-<a
-href="index.html"
-class="logout-btn"
-onclick="logoutUser()"
->
-Logout
-</a>
-</li>
-
-</ul>
-
+  <div class="logo">Skill Match</div>
+  <ul>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="messages.html">Messages</a></li>
+    <li><a href="profile.html">Profile</a></li>
+    <li><a href="index.html" class="logout-btn" onclick="logoutUser()">Logout</a></li>
+  </ul>
 </nav>
 
-<!-- POST FORM -->
-
 <div class="post-wrapper">
+  <div class="post-form-card">
 
-<div class="post-card">
+    <h1>Create Skill Post</h1>
+    <p class="subtitle">Share what you can offer or request from others.</p>
 
-<h1>
+    <form id="postForm">
+      <input type="hidden" id="hiddenUserId">
 
-Create Skill Post
+      <label>Post Type</label>
+      <select name="post_type" id="postType" required>
+        <option value="Offering">Offering Skill</option>
+        <option value="Requesting">Requesting Skill</option>
+      </select>
 
-</h1>
+      <label>Skill Name</label>
+      <input type="text" id="skillName" placeholder="Example: Graphic Design" required>
 
-<p>
+      <label>Description</label>
+      <textarea id="description" placeholder="Describe your skill or request..." required></textarea>
 
-Share what you can offer or request from others.
+      <div class="form-buttons">
+        <button type="submit" id="submitBtn">Post Skill</button>
+        <button type="button" class="cancel-btn" onclick="window.location.href='dashboard.html'">Cancel</button>
+      </div>
+    </form>
 
-</p>
-
-<form
-action="/add-post"
-method="POST"
->
-
-<input
-type="hidden"
-name="user_id"
-id="hiddenUserId"
->
-
-<label>
-
-Post Type
-
-</label>
-
-<select
-name="post_type"
-required
->
-
-<option value="Offering">
-
-Offering Skill
-
-</option>
-
-<option value="Requesting">
-
-Requesting Skill
-
-</option>
-
-</select>
-
-<label>
-
-Skill Name
-
-</label>
-
-<input
-type="text"
-name="skill_name"
-placeholder="Example: Graphic Design"
-required
->
-
-<label>
-
-Description
-
-</label>
-
-<textarea
-name="description"
-placeholder="Describe your skill or request..."
-required
-></textarea>
-
-<div class="form-buttons">
-
-<button type="submit">
-
-Post Skill
-
-</button>
-
-<button
-type="button"
-class="cancel-btn"
-onclick="
-window.location.href='dashboard.html'
-"
->
-
-Cancel
-
-</button>
-
-</div>
-
-</form>
-
-</div>
-
+  </div>
 </div>
 
 <script>
+  const userId = localStorage.getItem('userId');
+  if (!userId) window.location.href = 'index.html';
 
-/* ================================
-   CHECK LOGIN
-================================ */
+  document.getElementById('hiddenUserId').value = userId;
 
-const userId =
-localStorage.getItem(
-'userId'
-);
+  document.getElementById('postForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-if(!userId){
+    const btn         = document.getElementById('submitBtn');
+    const post_type   = document.getElementById('postType').value;
+    const skill_name  = document.getElementById('skillName').value.trim();
+    const description = document.getElementById('description').value.trim();
 
-window.location.href =
-'index.html';
+    if (!skill_name || !description) { alert('Please fill in all fields.'); return; }
 
-}
+    btn.textContent = 'Posting...';
+    btn.disabled    = true;
 
-/* ================================
-   SET USER ID
-================================ */
+    try {
+      const res  = await fetch('/add-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, post_type, skill_name, description })
+      });
+      const data = await res.json();
 
-document.getElementById(
-'hiddenUserId'
-).value = userId;
+      if (data.success) {
+        window.location.href = 'dashboard.html';
+      } else {
+        alert(data.error || 'Failed to post. Please try again.');
+        btn.textContent = 'Post Skill';
+        btn.disabled    = false;
+      }
+    } catch (err) {
+      alert('Connection error. Please try again.');
+      btn.textContent = 'Post Skill';
+      btn.disabled    = false;
+    }
+  });
 
-/* ================================
-   LOGOUT
-================================ */
-
-function logoutUser(){
-
-localStorage.clear();
-
-}
-
+  function logoutUser() { localStorage.clear(); }
 </script>
 
 </body>
-
 </html>

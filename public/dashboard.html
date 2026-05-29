@@ -1,596 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Skill Match</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .welcome-box {
+      padding: 28px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
 
-<meta charset="UTF-8">
+    .welcome-box h1 {
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    .welcome-box p {
+      color: var(--text-soft);
+      font-size: 0.9rem;
+    }
 
-<title>Dashboard - Skill Match</title>
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+    }
 
-<link rel="stylesheet" href="style.css">
+    .stat-chip {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 18px 22px;
+      text-align: center;
+    }
 
+    .stat-chip .num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--purple-deep);
+    }
+
+    .stat-chip .lbl {
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      margin-top: 2px;
+    }
+
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .feed-header h3 { font-size: 1.1rem; }
+
+    .feed-header button {
+      width: auto;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+    }
+
+    #globalFeed {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    #globalFeed .post-card { margin: 0; }
+
+    /* Inline create form */
+    .create-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 20px;
+    }
+
+    .create-form-grid .full { grid-column: 1 / -1; }
+
+    @media (max-width: 560px) {
+      .create-form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- NAVIGATION -->
-
 <nav>
-
-<div class="logo">
-Skill Match
-</div>
-
-<ul>
-
-<li>
-<a href="messages.html">
-Messages
-</a>
-</li>
-
-<li>
-<a href="profile.html">
-Profile
-</a>
-</li>
-
-<li>
-<a
-href="index.html"
-class="logout-btn"
-onclick="logoutUser()"
->
-Logout
-</a>
-</li>
-
-</ul>
-
+  <div class="logo">Skill Match</div>
+  <ul>
+    <li><a href="messages.html">Messages</a></li>
+    <li><a href="profile.html">Profile</a></li>
+    <li><a href="index.html" class="logout-btn" onclick="logoutUser()">Logout</a></li>
+  </ul>
 </nav>
-
-<!-- MAIN CONTAINER -->
 
 <div class="container">
 
-<!-- USER INFO -->
+  <!-- WELCOME -->
+  <div class="content-box welcome-box">
+    <div>
+      <h1>Welcome back, <span id="user-display">...</span> 👋</h1>
+      <p>Find skills, share yours, connect with others.</p>
+    </div>
+    <a href="post_skills.html">
+      <button style="width:auto; padding:11px 24px;">+ New Post</button>
+    </a>
+  </div>
 
-<div class="content-box">
+  <!-- SEARCH -->
+  <div class="search-section">
+    <input type="text" id="skillSearch" placeholder="Search for skills...">
+    <button onclick="searchSkills()">Search</button>
+  </div>
 
-<h1>
-Welcome Back
-</h1>
+  <!-- SEARCH RESULTS -->
+  <div id="searchResults"></div>
 
-<h3 id="user-display">
-Loading user...
-</h3>
-
-</div>
-
-<!-- SEARCH -->
-
-<div class="search-section">
-
-<input
-type="text"
-id="skillSearch"
-placeholder="Search for skills..."
->
-
-<button onclick="searchSkills()">
-Search
-</button>
-
-</div>
-
-<!-- SEARCH RESULTS -->
-
-<div
-id="searchResults"
-style="
-width:100%;
-max-width:700px;
-"
-></div>
-
-<!-- COMMUNITY FEED -->
-
-<div class="content-box">
-
-<div
-style="
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-"
->
-
-<h3>
-Community Feed
-</h3>
-
-<button
-style="
-width:auto;
-padding:10px 20px;
-"
-onclick="loadAllPosts()"
->
-Refresh
-</button>
+  <!-- COMMUNITY FEED -->
+  <div class="content-box">
+    <div class="feed-header">
+      <h3>Community Feed</h3>
+      <button onclick="loadAllPosts()">↻ Refresh</button>
+    </div>
+    <div id="globalFeed">
+      <p style="opacity:0.6; text-align:center; padding:20px;">Loading posts...</p>
+    </div>
+  </div>
 
 </div>
-
-<div id="globalFeed">
-
-<p>
-Loading posts...
-</p>
-
-</div>
-
-</div>
-
-<!-- CREATE POST -->
-
-<div class="content-box">
-
-<h3>
-Create New Post
-</h3>
-
-<form
-action="/add-post"
-method="POST"
->
-
-<input
-type="hidden"
-name="user_id"
-id="hiddenUserId"
->
-
-<label>
-Post Type
-</label>
-
-<select
-name="post_type"
-required
->
-
-<option value="Offering">
-Offering Skill
-</option>
-
-<option value="Requesting">
-Requesting Skill
-</option>
-
-</select>
-
-<label>
-Skill Name
-</label>
-
-<input
-type="text"
-name="skill_name"
-placeholder="Example: Web Design"
-required
->
-
-<label>
-Description
-</label>
-
-<textarea
-name="description"
-placeholder="Describe your skill..."
-rows="5"
-required
-></textarea>
-
-<button type="submit">
-Post Skill
-</button>
-
-</form>
-
-</div>
-
-</div>
-
-<!-- JAVASCRIPT -->
 
 <script>
-
-let currentUserId =
-localStorage.getItem('userId');
-
-let currentUsername =
-localStorage.getItem('username');
-
-/* =====================================
-   CHECK LOGIN
-===================================== */
-
-if(
-!currentUserId ||
-!currentUsername
-){
-
-window.location.href =
-'index.html';
-
-}
-
-/* =====================================
-   DISPLAY USER
-===================================== */
-
-document.getElementById(
-'user-display'
-).innerText =
-currentUsername;
-
-document.getElementById(
-'hiddenUserId'
-).value =
-currentUserId;
-
-/* =====================================
-   LOAD POSTS
-===================================== */
-
-async function loadAllPosts(){
-
-try{
-
-const res =
-await fetch(
-'/api/search-skills?query='
-);
-
-const posts =
-await res.json();
-
-const container =
-document.getElementById(
-'globalFeed'
-);
-
-container.innerHTML='';
-
-if(posts.length===0){
-
-container.innerHTML=`
-
-<p style="opacity:0.7;">
-No posts found.
-</p>
-
-`;
-
-return;
-
-}
-
-posts.forEach(post=>{
-
-const isMyPost =
-post.user_id ==
-currentUserId;
-
-const div =
-document.createElement('div');
-
-div.className='post-card';
-
-div.id=`post-${post.post_id}`;
-
-div.innerHTML=`
-
-<div>
-
-<h3>
-
-${post.skill_name}
-
-<span class="badge">
-
-${post.post_type}
-
-</span>
-
-</h3>
-
-<p
-style="
-margin-top:10px;
-opacity:0.85;
-"
->
-
-${post.description}
-
-</p>
-
-</div>
-
-<div
-style="
-display:flex;
-gap:10px;
-"
->
-
-${
-isMyPost
-
-?
-
-`
-
-<button
-onclick="
-deletePost(
-${post.post_id}
-)
-"
-style="
-background:#ef4444;
-"
->
-
-Delete
-
-</button>
-
-`
-
-:
-
-`
-
-<button
-onclick="
-contactUser(
-${post.user_id}
-)
-"
->
-
-Message
-
-</button>
-
-`
-
-}
-
-</div>
-
-`;
-
-container.appendChild(div);
-
-});
-
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-
-/* =====================================
-   SEARCH SKILLS
-===================================== */
-
-async function searchSkills(){
-
-const query =
-document.getElementById(
-'skillSearch'
-).value;
-
-const container =
-document.getElementById(
-'searchResults'
-);
-
-if(query.trim()===''){
-
-container.innerHTML='';
-
-return;
-
-}
-
-container.innerHTML=`
-
-<div class="content-box">
-
-Searching...
-
-</div>
-
-`;
-
-try{
-
-const res =
-await fetch(
-`/api/search-skills?query=${query}`
-);
-
-const posts =
-await res.json();
-
-container.innerHTML='';
-
-if(posts.length===0){
-
-container.innerHTML=`
-
-<div class="content-box">
-
-No results found.
-
-</div>
-
-`;
-
-return;
-
-}
-
-posts.forEach(post=>{
-
-const div =
-document.createElement('div');
-
-div.className='post-card';
-
-div.innerHTML=`
-
-<div>
-
-<h3>
-
-${post.skill_name}
-
-<span class="badge">
-
-${post.post_type}
-
-</span>
-
-</h3>
-
-<p
-style="
-margin-top:10px;
-"
->
-
-${post.description}
-
-</p>
-
-</div>
-
-<button
-onclick="
-contactUser(
-${post.user_id}
-)
-"
->
-
-Message
-
-</button>
-
-`;
-
-container.appendChild(div);
-
-});
-
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-
-/* =====================================
-   CONTACT USER
-===================================== */
-
-function contactUser(userId){
-
-localStorage.setItem(
-'selectedUserId',
-userId
-);
-
-window.location.href =
-'messages.html';
-
-}
-
-/* =====================================
-   DELETE POST
-===================================== */
-
-async function deletePost(postId){
-
-const confirmDelete =
-confirm(
-'Delete this post?'
-);
-
-if(!confirmDelete)return;
-
-try{
-
-const res =
-await fetch(
-
-`/api/delete-post/${postId}`,
-
-{
-method:'DELETE'
-}
-
-);
-
-const data =
-await res.json();
-
-if(data.success){
-
-document.getElementById(
-`post-${postId}`
-).remove();
-
-}
-
-}catch(err){
-
-console.log(err);
-
-}
-
-}
-
-/* =====================================
-   LOGOUT
-===================================== */
-
-function logoutUser(){
-
-localStorage.clear();
-
-}
-
-/* =====================================
-   INITIAL LOAD
-===================================== */
-
-loadAllPosts();
-
+  const currentUserId   = localStorage.getItem('userId');
+  const currentUsername = localStorage.getItem('username');
+
+  if (!currentUserId || !currentUsername) {
+    window.location.href = 'index.html';
+  }
+
+  document.getElementById('user-display').innerText = currentUsername;
+
+  /* ── LOAD ALL POSTS ── */
+  async function loadAllPosts() {
+    try {
+      const res   = await fetch('/api/search-skills?query=');
+      const posts = await res.json();
+      const feed  = document.getElementById('globalFeed');
+
+      feed.innerHTML = '';
+
+      if (posts.length === 0) {
+        feed.innerHTML = '<p style="opacity:0.6;text-align:center;padding:20px;">No posts yet. Be the first!</p>';
+        return;
+      }
+
+      posts.forEach(post => {
+        const isMyPost = post.user_id == currentUserId;
+        const div = document.createElement('div');
+        div.className = 'post-card';
+        div.id = `post-${post.post_id}`;
+        div.innerHTML = `
+          <div style="flex:1;">
+            <h3>
+              ${escHtml(post.skill_name)}
+              <span class="badge">${escHtml(post.post_type)}</span>
+            </h3>
+            <p>${escHtml(post.description)}</p>
+          </div>
+          <div>
+            ${isMyPost
+              ? `<button onclick="deletePost(${post.post_id})" style="background:linear-gradient(135deg,#dc2626,#b91c1c);">Delete</button>`
+              : `<button onclick="contactUser(${post.user_id})">Message</button>`
+            }
+          </div>`;
+        feed.appendChild(div);
+      });
+    } catch (err) { console.log(err); }
+  }
+
+  /* ── SEARCH ── */
+  async function searchSkills() {
+    const query     = document.getElementById('skillSearch').value.trim();
+    const container = document.getElementById('searchResults');
+
+    if (!query) { container.innerHTML = ''; return; }
+
+    container.innerHTML = '<div class="content-box" style="padding:20px;opacity:0.7;">Searching...</div>';
+
+    try {
+      const res   = await fetch(`/api/search-skills?query=${encodeURIComponent(query)}`);
+      const posts = await res.json();
+
+      container.innerHTML = '';
+
+      if (posts.length === 0) {
+        container.innerHTML = '<div class="content-box" style="padding:20px;opacity:0.7;">No results found.</div>';
+        return;
+      }
+
+      const wrap = document.createElement('div');
+      wrap.className = 'content-box';
+      wrap.style.cssText = 'display:flex;flex-direction:column;gap:14px;';
+      wrap.innerHTML = '<h3 style="margin-bottom:4px;">Search Results</h3>';
+
+      posts.forEach(post => {
+        const div = document.createElement('div');
+        div.className = 'post-card';
+        div.style.margin = '0';
+        div.innerHTML = `
+          <div style="flex:1;">
+            <h3>${escHtml(post.skill_name)} <span class="badge">${escHtml(post.post_type)}</span></h3>
+            <p>${escHtml(post.description)}</p>
+          </div>
+          <button onclick="contactUser(${post.user_id})">Message</button>`;
+        wrap.appendChild(div);
+      });
+
+      container.appendChild(wrap);
+    } catch (err) { console.log(err); }
+  }
+
+  /* Allow Enter key to search */
+  document.getElementById('skillSearch').addEventListener('keydown', e => {
+    if (e.key === 'Enter') searchSkills();
+  });
+
+  /* ── CONTACT ── */
+  function contactUser(userId) {
+    localStorage.setItem('selectedUserId', userId);
+    window.location.href = 'messages.html';
+  }
+
+  /* ── DELETE ── */
+  async function deletePost(postId) {
+    if (!confirm('Delete this post?')) return;
+    try {
+      const res  = await fetch(`/api/delete-post/${postId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) document.getElementById(`post-${postId}`).remove();
+    } catch (err) { console.log(err); }
+  }
+
+  /* ── LOGOUT ── */
+  function logoutUser() { localStorage.clear(); }
+
+  /* ── UTIL ── */
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  loadAllPosts();
 </script>
 
 </body>
-
 </html>

@@ -1,205 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Match - Register</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-<meta charset="UTF-8">
+    .register-container {
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+      animation: fadeUp 0.5s ease both;
+    }
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-<title>
-Register - Skill Match
-</title>
+    .login-card {
+      text-align: center;
+    }
 
-<link rel="stylesheet" href="style.css">
+    .logo-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6d28d9, #4f46e5);
+      margin: 0 auto 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 8px 24px rgba(109, 40, 217, 0.4);
+    }
 
-<style>
+    .login-card h1 { font-size: 2rem; margin-bottom: 6px; }
 
-body{
+    .login-card .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      margin-bottom: 28px;
+    }
 
-display:flex;
-justify-content:center;
-align-items:center;
+    .login-card form { text-align: left; }
 
-min-height:100vh;
-
-margin:0;
-padding:0;
-
-}
-
-.register-container{
-
-width:100%;
-max-width:450px;
-
-padding:20px;
-
-}
-
-.register-card{
-
-background:white;
-
-padding:40px;
-
-border-radius:25px;
-
-box-shadow:
-0 10px 30px rgba(0,0,0,0.15);
-
-text-align:center;
-
-}
-
-.logo-circle{
-
-width:90px;
-height:90px;
-
-border-radius:50%;
-
-background:#6366f1;
-
-margin:0 auto 20px;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-font-size:2.5rem;
-
-font-weight:bold;
-
-color:white;
-
-}
-
-.register-card h1{
-
-margin:0;
-
-font-size:2.2rem;
-
-color:#4B0082;
-
-}
-
-.register-card p{
-
-opacity:0.7;
-
-margin-top:10px;
-
-margin-bottom:30px;
-
-}
-
-.register-card input{
-
-margin-bottom:18px;
-
-}
-
-.register-card button{
-
-margin-top:10px;
-
-}
-
-.bottom-link{
-
-margin-top:25px;
-
-font-size:0.95rem;
-
-}
-
-.bottom-link a{
-
-font-weight:bold;
-
-}
-
-</style>
-
+    .bottom-link {
+      margin-top: 22px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+  </style>
 </head>
-
 <body>
 
 <div class="register-container">
+  <div class="login-card">
 
-<div class="register-card">
+    <div class="logo-circle">S</div>
+    <h1>Create Account</h1>
+    <p class="subtitle">Join Skill Match today</p>
 
-<div class="logo-circle">
+    <form id="registerForm">
+      <input type="text"     id="regUsername" placeholder="Username"        required>
+      <input type="email"    id="regEmail"    placeholder="Email Address"   required>
+      <input type="password" id="regPassword" placeholder="Password"        required>
+      <button type="submit"  id="regBtn">Create Account</button>
+    </form>
 
-S
+    <div class="bottom-link">
+      Already have an account? <a href="index.html">Login here</a>
+    </div>
 
+  </div>
 </div>
 
-<h1>
+<script>
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-Create Account
+    const username = document.getElementById('regUsername').value;
+    const email    = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const btn      = document.getElementById('regBtn');
 
-</h1>
+    btn.textContent = 'Creating account...';
+    btn.disabled = true;
 
-<p>
+    try {
+      const res  = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
 
-Join the Skill Match community
+      const data = await res.json();
 
-</p>
-
-<form
-action="/register"
-method="POST"
->
-
-<input
-type="text"
-name="username"
-placeholder="Full Name"
-required
->
-
-<input
-type="email"
-name="email"
-placeholder="Email Address"
-required
->
-
-<input
-type="password"
-name="password"
-placeholder="Password"
-required
->
-
-<button type="submit">
-
-Register
-
-</button>
-
-</form>
-
-<div class="bottom-link">
-
-Already have an account?
-
-<a href="index.html">
-
-Login here
-
-</a>
-
-</div>
-
-</div>
-
-</div>
+      if (data.success) {
+        alert('Account created! Please login.');
+        window.location.href = 'index.html';
+      } else {
+        alert(data.error || 'Registration failed. Email may already be taken.');
+        btn.textContent = 'Create Account';
+        btn.disabled = false;
+      }
+    } catch (err) {
+      alert('Connection error. Please try again.');
+      btn.textContent = 'Create Account';
+      btn.disabled = false;
+    }
+  });
+</script>
 
 </body>
-
 </html>
