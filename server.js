@@ -8,6 +8,8 @@ const app = express();
    DATABASE CONNECTION (SUPABASE POSTGRES)
 ========================================= */
 
+const { Pool } = require("pg");
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -58,6 +60,14 @@ async function initDb() {
     console.log("Database Error:", err);
   }
 }
+
+pool.query("SELECT NOW()", (err, res) => {
+  if (err) {
+    console.log("DB CONNECTION FAILED:", err);
+  } else {
+    console.log("DB CONNECTED:", res.rows);
+  }
+});
 
 initDb();
 
