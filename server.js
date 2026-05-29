@@ -60,13 +60,13 @@ app.post("/register", async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    console.log("REGISTER ERROR:", err.message);
+  console.log("REGISTER ERROR FULL:", err);
 
-    res.json({
-      success: false,
-      error: err.message
-    });
-  }
+  res.json({
+    success: false,
+    error: err?.message || err.toString()
+  });
+}
 });
 
 /* LOGIN */
