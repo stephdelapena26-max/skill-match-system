@@ -1,26 +1,358 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>Messages</title>
-<link rel="stylesheet" href="/style.css">
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Messages - Skill Match
+</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+
+margin:0;
+padding:0;
+
+}
+
+.chat-container{
+
+display:flex;
+
+height:calc(100vh - 70px);
+
+}
+
+.sidebar{
+
+width:320px;
+
+background:white;
+
+border-right:1px solid #ddd;
+
+overflow-y:auto;
+
+}
+
+.sidebar-header{
+
+padding:20px;
+
+font-size:1.3rem;
+
+font-weight:bold;
+
+color:#4B0082;
+
+border-bottom:1px solid #eee;
+
+}
+
+.contact{
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+padding:15px 20px;
+
+cursor:pointer;
+
+transition:0.2s;
+
+border-bottom:1px solid #f2f2f2;
+
+}
+
+.contact:hover{
+
+background:#f5f3ff;
+
+}
+
+.contact.active{
+
+background:#ede9fe;
+
+}
+
+.pfp{
+
+width:50px;
+height:50px;
+
+border-radius:50%;
+
+background:#6366f1;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+color:white;
+
+font-weight:bold;
+
+font-size:1.2rem;
+
+flex-shrink:0;
+
+}
+
+.chat-area{
+
+flex:1;
+
+display:flex;
+
+flex-direction:column;
+
+background:#fafafa;
+
+}
+
+.chat-header{
+
+padding:20px;
+
+background:white;
+
+border-bottom:1px solid #eee;
+
+font-weight:bold;
+
+font-size:1.1rem;
+
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
+}
+
+.messages{
+
+flex:1;
+
+padding:20px;
+
+overflow-y:auto;
+
+display:flex;
+
+flex-direction:column;
+
+gap:12px;
+
+}
+
+.message-row{
+
+display:flex;
+
+}
+
+.sent-row{
+
+justify-content:flex-end;
+
+}
+
+.message{
+
+max-width:70%;
+
+padding:12px 18px;
+
+border-radius:20px;
+
+font-size:0.95rem;
+
+word-wrap:break-word;
+
+}
+
+.sent{
+
+background:#6366f1;
+
+color:white;
+
+border-bottom-right-radius:5px;
+
+}
+
+.received{
+
+background:white;
+
+color:#333;
+
+border-bottom-left-radius:5px;
+
+box-shadow:0 2px 8px rgba(0,0,0,0.08);
+
+}
+
+.chat-input{
+
+display:flex;
+
+padding:15px;
+
+background:white;
+
+border-top:1px solid #eee;
+
+gap:10px;
+
+}
+
+.chat-input textarea{
+
+flex:1;
+
+resize:none;
+
+height:50px;
+
+border-radius:15px;
+
+padding:12px;
+
+}
+
+.chat-input button{
+
+width:120px;
+
+}
+
+.empty-chat{
+
+margin:auto;
+
+font-size:1.2rem;
+
+opacity:0.6;
+
+}
+
+</style>
+
 </head>
+
 <body>
 
-<div class="container">
+<nav>
 
-<div class="content-box">
-<h2>Messages</h2>
+<div class="logo">
 
-<div id="contacts"></div>
+Skill Match
+
 </div>
 
-<div class="content-box">
-<h3>Chat</h3>
-<div id="chat"></div>
+<ul>
 
-<form id="form">
-<input id="msg" placeholder="Message">
-<button>Send</button>
+<li>
+<a href="dashboard.html">
+Dashboard
+</a>
+</li>
+
+<li>
+<a href="profile.html">
+Profile
+</a>
+</li>
+
+<li>
+<a
+href="index.html"
+class="logout-btn"
+onclick="logoutUser()"
+>
+Logout
+</a>
+</li>
+
+</ul>
+
+</nav>
+
+<div class="chat-container">
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+<div class="sidebar-header">
+
+Chats
+
+</div>
+
+<div id="contacts-container">
+
+</div>
+
+</div>
+
+<!-- CHAT AREA -->
+
+<div class="chat-area">
+
+<div
+class="chat-header"
+id="chatHeader"
+>
+
+Select a chat
+
+</div>
+
+<div
+class="messages"
+id="chatMessages"
+>
+
+<div class="empty-chat">
+
+Start messaging someone
+
+</div>
+
+</div>
+
+<form
+class="chat-input"
+id="messageForm"
+>
+
+<textarea
+id="messageInput"
+placeholder="Type a message..."
+required
+></textarea>
+
+<button type="submit">
+
+Send
+
+</button>
+
 </form>
 
 </div>
@@ -28,57 +360,321 @@
 </div>
 
 <script>
-let active = null;
-const userId = localStorage.getItem("userId");
 
-if (!userId) window.location.href="/index.html";
+/* ===================================
+   USER DATA
+=================================== */
+
+const currentUserId =
+localStorage.getItem('userId');
+
+if(!currentUserId){
+
+window.location.href =
+'index.html';
+
+}
+
+let activeReceiverId = null;
+
+/* ===================================
+   LOAD CONTACTS
+=================================== */
 
 async function loadContacts(){
-const res = await fetch("/api/my-contacts");
-const data = await res.json();
 
-document.getElementById("contacts").innerHTML =
-data.map(u =>
-`<div onclick="openChat(${u.user_id},'${u.name}')">
-${u.name}
-</div>`).join("");
-}
+try{
 
-async function openChat(id,name){
-active = id;
-loadChat();
-}
+const res =
+await fetch('/api/my-contacts');
 
-async function loadChat(){
-if(!active) return;
+const users =
+await res.json();
 
-const res = await fetch(`/api/get-messages?sender=${userId}&receiver=${active}`);
-const data = await res.json();
+const container =
+document.getElementById(
+'contacts-container'
+);
 
-document.getElementById("chat").innerHTML =
-data.map(m => `<p>${m.message_text}</p>`).join("");
-}
+container.innerHTML='';
 
-document.getElementById("form").onsubmit = async (e)=>{
-e.preventDefault();
+users.forEach(user=>{
 
-await fetch("/api/reply-message",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-senderId:userId,
-receiverId:active,
-message_text:document.getElementById("msg").value
-})
+if(user.user_id == currentUserId)
+return;
+
+const div =
+document.createElement('div');
+
+div.className='contact';
+
+const icon =
+user.pfp_icon ||
+user.username[0].toUpperCase();
+
+div.innerHTML=`
+
+<div class="pfp">
+
+${icon}
+
+</div>
+
+<div>
+
+<strong>
+
+${user.username}
+
+</strong>
+
+</div>
+
+`;
+
+div.onclick=()=>{
+
+document
+.querySelectorAll('.contact')
+.forEach(c=>{
+
+c.classList.remove('active');
+
 });
 
-document.getElementById("msg").value="";
-loadChat();
+div.classList.add('active');
+
+openChat(
+user.user_id,
+user.username,
+icon
+);
+
 };
 
+container.appendChild(div);
+
+});
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+/* ===================================
+   OPEN CHAT
+=================================== */
+
+function openChat(
+userId,
+username,
+icon
+){
+
+activeReceiverId=userId;
+
+document.getElementById(
+'chatHeader'
+).innerHTML=`
+
+<div class="pfp">
+
+${icon}
+
+</div>
+
+${username}
+
+`;
+
+loadMessages();
+
+}
+
+/* ===================================
+   LOAD MESSAGES
+=================================== */
+
+async function loadMessages(){
+
+if(!activeReceiverId)return;
+
+try{
+
+const res =
+await fetch(
+
+`/api/get-messages?sender=${currentUserId}&receiver=${activeReceiverId}`
+
+);
+
+const messages =
+await res.json();
+
+const container =
+document.getElementById(
+'chatMessages'
+);
+
+container.innerHTML='';
+
+messages.forEach(msg=>{
+
+const row =
+document.createElement('div');
+
+const isMine =
+msg.sender_id ==
+currentUserId;
+
+row.className=
+isMine
+?
+'message-row sent-row'
+:
+'message-row';
+
+row.innerHTML=`
+
+<div class="message ${isMine ? 'sent' : 'received'}">
+
+${msg.message_text}
+
+</div>
+
+`;
+
+container.appendChild(row);
+
+});
+
+container.scrollTop =
+container.scrollHeight;
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+/* ===================================
+   SEND MESSAGE
+=================================== */
+
+document.getElementById(
+'messageForm'
+).addEventListener(
+'submit',
+async(e)=>{
+
+e.preventDefault();
+
+if(!activeReceiverId){
+
+alert(
+'Select a user first'
+);
+
+return;
+
+}
+
+const input =
+document.getElementById(
+'messageInput'
+);
+
+const text =
+input.value;
+
+try{
+
+const res =
+await fetch(
+
+'/api/reply-message',
+
+{
+method:'POST',
+
+headers:{
+'Content-Type':
+'application/json'
+},
+
+body:JSON.stringify({
+
+message_text:text,
+
+receiverId:
+activeReceiverId,
+
+senderId:
+currentUserId
+
+})
+
+}
+
+);
+
+const data =
+await res.json();
+
+if(data.success){
+
+input.value='';
+
+loadMessages();
+
+}
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+);
+
+/* ===================================
+   AUTO REFRESH
+=================================== */
+
+setInterval(()=>{
+
+if(activeReceiverId){
+
+loadMessages();
+
+}
+
+},3000);
+
+/* ===================================
+   LOGOUT
+=================================== */
+
+function logoutUser(){
+
+localStorage.clear();
+
+}
+
+/* ===================================
+   INITIALIZE
+=================================== */
+
 loadContacts();
-setInterval(loadChat,3000);
+
 </script>
 
 </body>
+
 </html>

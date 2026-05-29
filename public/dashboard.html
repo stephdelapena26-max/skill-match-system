@@ -1,140 +1,596 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>Dashboard</title>
-<link rel="stylesheet" href="/style.css">
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard - Skill Match</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
 
+<!-- NAVIGATION -->
+
 <nav>
-<h2>Skill Match</h2>
-<a href="/index.html">Logout</a>
+
+<div class="logo">
+Skill Match
+</div>
+
+<ul>
+
+<li>
+<a href="messages.html">
+Messages
+</a>
+</li>
+
+<li>
+<a href="profile.html">
+Profile
+</a>
+</li>
+
+<li>
+<a
+href="index.html"
+class="logout-btn"
+onclick="logoutUser()"
+>
+Logout
+</a>
+</li>
+
+</ul>
+
 </nav>
+
+<!-- MAIN CONTAINER -->
 
 <div class="container">
 
-<h2 id="welcome"></h2>
+<!-- USER INFO -->
 
-<!-- CREATE POST -->
-<form action="/add-post" method="POST">
+<div class="content-box">
 
-    <input type="hidden" name="userId" id="userId">
+<h1>
+Welcome Back
+</h1>
 
-    <select name="post_type">
-        <option value="Offering">Offer Skill</option>
-        <option value="Requesting">Request Skill</option>
-    </select>
-
-    <input name="skill_name" placeholder="Skill name" required>
-    <textarea name="description" placeholder="Description"></textarea>
-
-    <button type="submit">Post</button>
-</form>
-
-<hr>
-
-<h3>Feed</h3>
-<div id="feed"></div>
-<style>
-.post {
-    background: rgba(255,255,255,0.9);
-    padding: 15px;
-    border-radius: 15px;
-    margin: 15px 0;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.post-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #9370DB;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
-.badge {
-    font-size: 12px;
-    padding: 3px 8px;
-    border-radius: 10px;
-    margin-left: 8px;
-}
-
-.offer {
-    background: #4CAF50;
-    color: white;
-}
-
-.request {
-    background: #FF4D4D;
-    color: white;
-}
-</style>
+<h3 id="user-display">
+Loading user...
+</h3>
 
 </div>
 
+<!-- SEARCH -->
+
+<div class="search-section">
+
+<input
+type="text"
+id="skillSearch"
+placeholder="Search for skills..."
+>
+
+<button onclick="searchSkills()">
+Search
+</button>
+
+</div>
+
+<!-- SEARCH RESULTS -->
+
+<div
+id="searchResults"
+style="
+width:100%;
+max-width:700px;
+"
+></div>
+
+<!-- COMMUNITY FEED -->
+
+<div class="content-box">
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+"
+>
+
+<h3>
+Community Feed
+</h3>
+
+<button
+style="
+width:auto;
+padding:10px 20px;
+"
+onclick="loadAllPosts()"
+>
+Refresh
+</button>
+
+</div>
+
+<div id="globalFeed">
+
+<p>
+Loading posts...
+</p>
+
+</div>
+
+</div>
+
+<!-- CREATE POST -->
+
+<div class="content-box">
+
+<h3>
+Create New Post
+</h3>
+
+<form
+action="/add-post"
+method="POST"
+>
+
+<input
+type="hidden"
+name="user_id"
+id="hiddenUserId"
+>
+
+<label>
+Post Type
+</label>
+
+<select
+name="post_type"
+required
+>
+
+<option value="Offering">
+Offering Skill
+</option>
+
+<option value="Requesting">
+Requesting Skill
+</option>
+
+</select>
+
+<label>
+Skill Name
+</label>
+
+<input
+type="text"
+name="skill_name"
+placeholder="Example: Web Design"
+required
+>
+
+<label>
+Description
+</label>
+
+<textarea
+name="description"
+placeholder="Describe your skill..."
+rows="5"
+required
+></textarea>
+
+<button type="submit">
+Post Skill
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<!-- JAVASCRIPT -->
+
 <script>
-const userId = localStorage.getItem("userId");
-const username = localStorage.getItem("username");
 
-if (!userId) {
-    window.location.href = "/index.html";
+let currentUserId =
+localStorage.getItem('userId');
+
+let currentUsername =
+localStorage.getItem('username');
+
+/* =====================================
+   CHECK LOGIN
+===================================== */
+
+if(
+!currentUserId ||
+!currentUsername
+){
+
+window.location.href =
+'index.html';
+
 }
 
-/* Set hidden userId properly */
-document.getElementById("userId").value = userId;
+/* =====================================
+   DISPLAY USER
+===================================== */
 
-/* Welcome text */
-document.getElementById("welcome").innerText =
-"Welcome " + username;
+document.getElementById(
+'user-display'
+).innerText =
+currentUsername;
 
-/* Load feed */
-async function loadFeed() {
-    const res = await fetch("/api/search-skills?query=");
-    const data = await res.json();
+document.getElementById(
+'hiddenUserId'
+).value =
+currentUserId;
 
-    const feed = document.getElementById("feed");
+/* =====================================
+   LOAD POSTS
+===================================== */
 
-    feed.innerHTML = data.map(post => {
+async function loadAllPosts(){
 
-        const initial = post.name ? post.name.charAt(0).toUpperCase() : "?";
-        const badgeClass = post.type === "Offering" ? "offer" : "request";
+try{
 
-        return `
-        <div class="post">
+const res =
+await fetch(
+'/api/search-skills?query='
+);
 
-            <div class="post-header">
-                <div class="avatar">
-                    ${post.pfp_icon || initial}
-                </div>
+const posts =
+await res.json();
 
-                <strong>${post.name}</strong>
+const container =
+document.getElementById(
+'globalFeed'
+);
 
-                <span class="badge ${badgeClass}">
-                    ${post.type}
-                </span>
-            </div>
+container.innerHTML='';
 
-            <h3>${post.skill_name}</h3>
-            <p>${post.description}</p>
+if(posts.length===0){
 
-        </div>
-        `;
-    }).join("");
+container.innerHTML=`
+
+<p style="opacity:0.7;">
+No posts found.
+</p>
+
+`;
+
+return;
+
 }
 
-loadFeed();
+posts.forEach(post=>{
+
+const isMyPost =
+post.user_id ==
+currentUserId;
+
+const div =
+document.createElement('div');
+
+div.className='post-card';
+
+div.id=`post-${post.post_id}`;
+
+div.innerHTML=`
+
+<div>
+
+<h3>
+
+${post.skill_name}
+
+<span class="badge">
+
+${post.post_type}
+
+</span>
+
+</h3>
+
+<p
+style="
+margin-top:10px;
+opacity:0.85;
+"
+>
+
+${post.description}
+
+</p>
+
+</div>
+
+<div
+style="
+display:flex;
+gap:10px;
+"
+>
+
+${
+isMyPost
+
+?
+
+`
+
+<button
+onclick="
+deletePost(
+${post.post_id}
+)
+"
+style="
+background:#ef4444;
+"
+>
+
+Delete
+
+</button>
+
+`
+
+:
+
+`
+
+<button
+onclick="
+contactUser(
+${post.user_id}
+)
+"
+>
+
+Message
+
+</button>
+
+`
+
+}
+
+</div>
+
+`;
+
+container.appendChild(div);
+
+});
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+/* =====================================
+   SEARCH SKILLS
+===================================== */
+
+async function searchSkills(){
+
+const query =
+document.getElementById(
+'skillSearch'
+).value;
+
+const container =
+document.getElementById(
+'searchResults'
+);
+
+if(query.trim()===''){
+
+container.innerHTML='';
+
+return;
+
+}
+
+container.innerHTML=`
+
+<div class="content-box">
+
+Searching...
+
+</div>
+
+`;
+
+try{
+
+const res =
+await fetch(
+`/api/search-skills?query=${query}`
+);
+
+const posts =
+await res.json();
+
+container.innerHTML='';
+
+if(posts.length===0){
+
+container.innerHTML=`
+
+<div class="content-box">
+
+No results found.
+
+</div>
+
+`;
+
+return;
+
+}
+
+posts.forEach(post=>{
+
+const div =
+document.createElement('div');
+
+div.className='post-card';
+
+div.innerHTML=`
+
+<div>
+
+<h3>
+
+${post.skill_name}
+
+<span class="badge">
+
+${post.post_type}
+
+</span>
+
+</h3>
+
+<p
+style="
+margin-top:10px;
+"
+>
+
+${post.description}
+
+</p>
+
+</div>
+
+<button
+onclick="
+contactUser(
+${post.user_id}
+)
+"
+>
+
+Message
+
+</button>
+
+`;
+
+container.appendChild(div);
+
+});
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+/* =====================================
+   CONTACT USER
+===================================== */
+
+function contactUser(userId){
+
+localStorage.setItem(
+'selectedUserId',
+userId
+);
+
+window.location.href =
+'messages.html';
+
+}
+
+/* =====================================
+   DELETE POST
+===================================== */
+
+async function deletePost(postId){
+
+const confirmDelete =
+confirm(
+'Delete this post?'
+);
+
+if(!confirmDelete)return;
+
+try{
+
+const res =
+await fetch(
+
+`/api/delete-post/${postId}`,
+
+{
+method:'DELETE'
+}
+
+);
+
+const data =
+await res.json();
+
+if(data.success){
+
+document.getElementById(
+`post-${postId}`
+).remove();
+
+}
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+/* =====================================
+   LOGOUT
+===================================== */
+
+function logoutUser(){
+
+localStorage.clear();
+
+}
+
+/* =====================================
+   INITIAL LOAD
+===================================== */
+
+loadAllPosts();
+
 </script>
 
 </body>
+
 </html>

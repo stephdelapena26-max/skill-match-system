@@ -1,32 +1,78 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
 
- user_id SERIAL PRIMARY KEY,
- name VARCHAR(100),
- email VARCHAR(100) UNIQUE,
- password VARCHAR(255),
- bio TEXT DEFAULT '',
- pfp_icon VARCHAR(10) DEFAULT ''
-);
+    user_id SERIAL PRIMARY KEY,
 
-CREATE TABLE skills (
+    username VARCHAR(100) NOT NULL,
 
- skill_id SERIAL PRIMARY KEY,
- user_id INT,
- type VARCHAR(20),
- skill_name VARCHAR(100),
- description TEXT,
- FOREIGN KEY (user_id)
- REFERENCES users(user_id)
- ON DELETE CASCADE
+    email VARCHAR(255) UNIQUE NOT NULL,
+
+    password VARCHAR(255) NOT NULL,
+
+    bio TEXT DEFAULT '',
+
+    pfp_icon VARCHAR(10) DEFAULT '👤',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
 
-CREATE TABLE messages (
+-- =========================================
+-- SKILLS / POSTS TABLE
+-- =========================================
 
- message_id SERIAL PRIMARY KEY,
- sender_id INT,
- receiver_id INT,
- message_text TEXT,
- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS skills (
+
+    post_id SERIAL PRIMARY KEY,
+
+    user_id INTEGER REFERENCES users(user_id)
+    ON DELETE CASCADE,
+
+    post_type VARCHAR(50) NOT NULL,
+
+    skill_name VARCHAR(255) NOT NULL,
+
+    description TEXT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
+
+-- =========================================
+-- MESSAGES TABLE
+-- =========================================
+
+CREATE TABLE IF NOT EXISTS messages (
+
+    message_id SERIAL PRIMARY KEY,
+
+    sender_id INTEGER REFERENCES users(user_id)
+    ON DELETE CASCADE,
+
+    receiver_id INTEGER REFERENCES users(user_id)
+    ON DELETE CASCADE,
+
+    message_text TEXT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
+
+-- =========================================
+-- OPTIONAL TEST DATA
+-- REMOVE IF YOU DON'T WANT SAMPLE USERS
+-- =========================================
+
+INSERT INTO users
+(username, email, password, bio, pfp_icon)
+
+VALUES
+
+(
+'Alex',
+'alex@gmail.com',
+'123456',
+'Graphic Designer',
+'🎨'
+)
+
+ON CONFLICT (email) DO NOTHING;

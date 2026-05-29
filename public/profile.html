@@ -1,52 +1,470 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>Profile</title>
-<link rel="stylesheet" href="/style.css">
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+My Profile - Skill Match
+</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+
+margin:0;
+padding:0;
+
+}
+
+.profile-wrapper{
+
+display:flex;
+
+justify-content:center;
+align-items:center;
+
+min-height:calc(100vh - 70px);
+
+padding:30px;
+
+}
+
+.profile-card{
+
+background:white;
+
+width:100%;
+max-width:700px;
+
+padding:40px;
+
+border-radius:25px;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,0.15);
+
+text-align:center;
+
+}
+
+.profile-pfp{
+
+width:140px;
+height:140px;
+
+border-radius:50%;
+
+background:#6366f1;
+
+margin:0 auto 20px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:4rem;
+
+color:white;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:0.3s;
+
+}
+
+.profile-pfp:hover{
+
+transform:scale(1.05);
+
+}
+
+.profile-card h1{
+
+margin:0;
+
+font-size:2rem;
+
+color:#4B0082;
+
+}
+
+.profile-card p{
+
+opacity:0.75;
+
+margin-top:8px;
+
+}
+
+.profile-section{
+
+margin-top:35px;
+
+text-align:left;
+
+}
+
+.profile-section label{
+
+display:block;
+
+margin-bottom:10px;
+
+font-weight:bold;
+
+color:#4B0082;
+
+}
+
+.profile-section textarea{
+
+height:140px;
+
+resize:none;
+
+}
+
+.save-btn{
+
+margin-top:20px;
+
+}
+
+.small-note{
+
+font-size:0.85rem;
+
+opacity:0.65;
+
+margin-top:-10px;
+
+margin-bottom:20px;
+
+}
+
+</style>
+
 </head>
+
 <body>
 
-<div class="content-box">
+<!-- NAVIGATION -->
 
-<h2>Profile</h2>
+<nav>
 
-<h3 id="name"></h3>
-<p id="email"></p>
+<div class="logo">
 
-<textarea id="bio"></textarea>
-<button onclick="save()">Save</button>
+Skill Match
+
+</div>
+
+<ul>
+
+<li>
+<a href="dashboard.html">
+Dashboard
+</a>
+</li>
+
+<li>
+<a href="messages.html">
+Messages
+</a>
+</li>
+
+<li>
+<a
+href="index.html"
+class="logout-btn"
+onclick="logoutUser()"
+>
+Logout
+</a>
+</li>
+
+</ul>
+
+</nav>
+
+<!-- PROFILE -->
+
+<div class="profile-wrapper">
+
+<div class="profile-card">
+
+<div
+class="profile-pfp"
+id="profilePfp"
+onclick="changePfp()"
+>
+
+👤
+
+</div>
+
+<div class="small-note">
+
+Click profile icon to change
+
+</div>
+
+<h1 id="profileName">
+
+Loading...
+
+</h1>
+
+<p id="profileEmail">
+
+Loading...
+
+</p>
+
+<div class="profile-section">
+
+<label>
+
+About Me
+
+</label>
+
+<textarea
+id="bioInput"
+placeholder="Tell something about yourself..."
+></textarea>
+
+<button
+class="save-btn"
+onclick="saveBio()"
+>
+
+Save Changes
+
+</button>
+
+</div>
+
+</div>
 
 </div>
 
 <script>
-const userId = localStorage.getItem("userId");
 
-if (!userId) window.location.href="/index.html";
+/* ===================================
+   USER CHECK
+=================================== */
 
-async function load(){
-const res = await fetch("/api/user-data?userId="+userId);
-const u = await res.json();
+const userId =
+localStorage.getItem(
+'userId'
+);
 
-document.getElementById("name").innerText=u.name;
-document.getElementById("email").innerText=u.email;
-document.getElementById("bio").value=u.bio||"";
+if(!userId){
+
+window.location.href =
+'index.html';
+
 }
 
-async function save(){
-await fetch("/api/update-bio",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
+/* ===================================
+   LOAD PROFILE
+=================================== */
+
+async function loadProfile(){
+
+try{
+
+const res =
+await fetch(
+`/api/user-data?userId=${userId}`
+);
+
+const user =
+await res.json();
+
+document.getElementById(
+'profileName'
+).innerText =
+user.username;
+
+document.getElementById(
+'profileEmail'
+).innerText =
+user.email;
+
+document.getElementById(
+'bioInput'
+).value =
+user.bio || '';
+
+document.getElementById(
+'profilePfp'
+).innerText =
+user.pfp_icon ||
+user.username[0].toUpperCase();
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+/* ===================================
+   SAVE BIO
+=================================== */
+
+async function saveBio(){
+
+const bio =
+document.getElementById(
+'bioInput'
+).value;
+
+try{
+
+const res =
+await fetch(
+
+'/api/update-bio',
+
+{
+method:'POST',
+
+headers:{
+'Content-Type':
+'application/json'
+},
+
 body:JSON.stringify({
-userId,
-bio:document.getElementById("bio").value
-})
-});
 
-alert("Saved");
+bio:bio,
+
+userId:userId
+
+})
+
 }
 
-load();
+);
+
+const data =
+await res.json();
+
+if(data.success){
+
+alert(
+'Profile updated successfully'
+);
+
+}else{
+
+alert(
+'Failed to update profile'
+);
+
+}
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+/* ===================================
+   CHANGE PROFILE ICON
+=================================== */
+
+async function changePfp(){
+
+const newIcon =
+prompt(
+'Enter emoji or letter for profile picture'
+);
+
+if(!newIcon)return;
+
+try{
+
+const res =
+await fetch(
+
+'/api/update-pfp',
+
+{
+method:'POST',
+
+headers:{
+'Content-Type':
+'application/json'
+},
+
+body:JSON.stringify({
+
+pfp_icon:newIcon,
+
+userId:userId
+
+})
+
+}
+
+);
+
+const data =
+await res.json();
+
+if(data.success){
+
+document.getElementById(
+'profilePfp'
+).innerText =
+newIcon;
+
+alert(
+'Profile icon updated'
+);
+
+}
+
+}catch(err){
+
+console.log(err);
+
+}
+
+}
+
+/* ===================================
+   LOGOUT
+=================================== */
+
+function logoutUser(){
+
+localStorage.clear();
+
+}
+
+/* ===================================
+   INITIALIZE
+=================================== */
+
+loadProfile();
+
 </script>
 
 </body>
+
 </html>

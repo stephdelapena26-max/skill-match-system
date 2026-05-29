@@ -1,36 +1,447 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>Search</title>
-<link rel="stylesheet" href="/style.css">
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Search Skills - Skill Match
+</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+
+margin:0;
+padding:0;
+
+}
+
+.search-wrapper{
+
+display:flex;
+
+justify-content:center;
+align-items:flex-start;
+
+padding:40px 20px;
+
+min-height:calc(100vh - 70px);
+
+}
+
+.search-card{
+
+background:white;
+
+width:100%;
+max-width:850px;
+
+padding:40px;
+
+border-radius:25px;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,0.15);
+
+}
+
+.search-card h1{
+
+margin-top:0;
+
+font-size:2rem;
+
+color:#4B0082;
+
+margin-bottom:10px;
+
+}
+
+.search-card p{
+
+opacity:0.7;
+
+margin-bottom:30px;
+
+}
+
+.search-bar{
+
+display:flex;
+
+gap:15px;
+
+margin-bottom:30px;
+
+}
+
+.search-bar input{
+
+flex:1;
+
+}
+
+.search-bar button{
+
+width:160px;
+
+}
+
+.results-container{
+
+display:flex;
+
+flex-direction:column;
+
+gap:20px;
+
+}
+
+.result-card{
+
+background:#f9fafb;
+
+padding:25px;
+
+border-radius:20px;
+
+border-left:6px solid #6366f1;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+gap:20px;
+
+}
+
+.result-card h3{
+
+margin:0;
+
+color:#4B0082;
+
+}
+
+.result-card p{
+
+margin-top:10px;
+
+margin-bottom:0;
+
+opacity:0.8;
+
+}
+
+.badge{
+
+display:inline-block;
+
+padding:6px 12px;
+
+border-radius:20px;
+
+background:#ddd6fe;
+
+color:#4B0082;
+
+font-size:0.8rem;
+
+font-weight:bold;
+
+margin-top:10px;
+
+}
+
+.no-results{
+
+text-align:center;
+
+padding:30px;
+
+opacity:0.7;
+
+}
+
+</style>
+
 </head>
+
 <body>
 
-<div class="content-box">
+<!-- NAVIGATION -->
 
-<input id="q">
-<button onclick="search()">Search</button>
+<nav>
 
-<div id="results"></div>
+<div class="logo">
+
+Skill Match
+
+</div>
+
+<ul>
+
+<li>
+<a href="dashboard.html">
+Dashboard
+</a>
+</li>
+
+<li>
+<a href="messages.html">
+Messages
+</a>
+</li>
+
+<li>
+<a href="profile.html">
+Profile
+</a>
+</li>
+
+<li>
+<a
+href="index.html"
+class="logout-btn"
+onclick="logoutUser()"
+>
+Logout
+</a>
+</li>
+
+</ul>
+
+</nav>
+
+<!-- SEARCH SECTION -->
+
+<div class="search-wrapper">
+
+<div class="search-card">
+
+<h1>
+
+Search Skills
+
+</h1>
+
+<p>
+
+Find people who offer or request skills.
+
+</p>
+
+<div class="search-bar">
+
+<input
+type="text"
+id="searchInput"
+placeholder="Search skill..."
+>
+
+<button onclick="searchSkills()">
+
+Search
+
+</button>
+
+</div>
+
+<div
+class="results-container"
+id="resultsContainer"
+>
+
+<div class="no-results">
+
+Start searching for skills
+
+</div>
+
+</div>
+
+</div>
 
 </div>
 
 <script>
-async function search(){
-const q=document.getElementById("q").value;
 
-const res=await fetch("/api/search-skills?query="+q);
-const data=await res.json();
+/* ===================================
+   USER CHECK
+=================================== */
 
-document.getElementById("results").innerHTML=
-data.map(p=>`
-<div>
-<h3>${p.skill_name}</h3>
-<p>${p.description}</p>
-</div>
-`).join("");
+const currentUserId =
+localStorage.getItem(
+'userId'
+);
+
+if(!currentUserId){
+
+window.location.href =
+'index.html';
+
 }
+
+/* ===================================
+   SEARCH FUNCTION
+=================================== */
+
+async function searchSkills(){
+
+const query =
+document.getElementById(
+'searchInput'
+).value;
+
+const container =
+document.getElementById(
+'resultsContainer'
+);
+
+container.innerHTML=`
+
+<div class="no-results">
+
+Searching...
+
+</div>
+
+`;
+
+try{
+
+const res =
+await fetch(
+
+`/api/search-skills?query=${query}`
+
+);
+
+const posts =
+await res.json();
+
+container.innerHTML='';
+
+if(posts.length===0){
+
+container.innerHTML=`
+
+<div class="no-results">
+
+No skills found
+
+</div>
+
+`;
+
+return;
+
+}
+
+posts.forEach(post=>{
+
+const div =
+document.createElement('div');
+
+div.className='result-card';
+
+div.innerHTML=`
+
+<div>
+
+<h3>
+
+${post.skill_name}
+
+</h3>
+
+<div class="badge">
+
+${post.post_type}
+
+</div>
+
+<p>
+
+${post.description}
+
+</p>
+
+</div>
+
+<button
+onclick="
+messageUser(
+${post.user_id}
+)
+"
+>
+
+Message
+
+</button>
+
+`;
+
+container.appendChild(div);
+
+});
+
+}catch(err){
+
+console.log(err);
+
+container.innerHTML=`
+
+<div class="no-results">
+
+Error loading results
+
+</div>
+
+`;
+
+}
+
+}
+
+/* ===================================
+   MESSAGE USER
+=================================== */
+
+function messageUser(userId){
+
+localStorage.setItem(
+'selectedUserId',
+userId
+);
+
+window.location.href =
+'messages.html';
+
+}
+
+/* ===================================
+   LOGOUT
+=================================== */
+
+function logoutUser(){
+
+localStorage.clear();
+
+}
+
 </script>
 
 </body>
+
 </html>

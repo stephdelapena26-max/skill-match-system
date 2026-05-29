@@ -1,28 +1,322 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>Post Skill</title>
-<link rel="stylesheet" href="/style.css">
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Post Skill - Skill Match
+</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+
+margin:0;
+padding:0;
+
+}
+
+.post-wrapper{
+
+display:flex;
+
+justify-content:center;
+align-items:center;
+
+min-height:calc(100vh - 70px);
+
+padding:30px;
+
+}
+
+.post-card{
+
+background:white;
+
+width:100%;
+max-width:650px;
+
+padding:40px;
+
+border-radius:25px;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,0.15);
+
+}
+
+.post-card h1{
+
+margin-top:0;
+
+font-size:2rem;
+
+color:#4B0082;
+
+margin-bottom:10px;
+
+}
+
+.post-card p{
+
+opacity:0.7;
+
+margin-bottom:30px;
+
+}
+
+label{
+
+display:block;
+
+margin-bottom:8px;
+
+font-weight:bold;
+
+color:#4B0082;
+
+}
+
+.post-card input,
+.post-card textarea,
+.post-card select{
+
+margin-bottom:20px;
+
+}
+
+.post-card textarea{
+
+resize:none;
+
+height:140px;
+
+}
+
+.form-buttons{
+
+display:flex;
+
+gap:15px;
+
+margin-top:20px;
+
+}
+
+.cancel-btn{
+
+background:#ef4444;
+
+}
+
+.cancel-btn:hover{
+
+background:#dc2626;
+
+}
+
+</style>
+
 </head>
+
 <body>
 
-<div class="content-box">
+<!-- NAVBAR -->
 
-<form action="/add-post" method="POST">
+<nav>
 
-<select name="post_type">
-<option>Offering</option>
-<option>Requesting</option>
+<div class="logo">
+
+Skill Match
+
+</div>
+
+<ul>
+
+<li>
+<a href="dashboard.html">
+Dashboard
+</a>
+</li>
+
+<li>
+<a href="messages.html">
+Messages
+</a>
+</li>
+
+<li>
+<a href="profile.html">
+Profile
+</a>
+</li>
+
+<li>
+<a
+href="index.html"
+class="logout-btn"
+onclick="logoutUser()"
+>
+Logout
+</a>
+</li>
+
+</ul>
+
+</nav>
+
+<!-- POST FORM -->
+
+<div class="post-wrapper">
+
+<div class="post-card">
+
+<h1>
+
+Create Skill Post
+
+</h1>
+
+<p>
+
+Share what you can offer or request from others.
+
+</p>
+
+<form
+action="/add-post"
+method="POST"
+>
+
+<input
+type="hidden"
+name="user_id"
+id="hiddenUserId"
+>
+
+<label>
+
+Post Type
+
+</label>
+
+<select
+name="post_type"
+required
+>
+
+<option value="Offering">
+
+Offering Skill
+
+</option>
+
+<option value="Requesting">
+
+Requesting Skill
+
+</option>
+
 </select>
 
-<input name="skill_name" required>
-<textarea name="description"></textarea>
+<label>
 
-<button>Post</button>
+Skill Name
+
+</label>
+
+<input
+type="text"
+name="skill_name"
+placeholder="Example: Graphic Design"
+required
+>
+
+<label>
+
+Description
+
+</label>
+
+<textarea
+name="description"
+placeholder="Describe your skill or request..."
+required
+></textarea>
+
+<div class="form-buttons">
+
+<button type="submit">
+
+Post Skill
+
+</button>
+
+<button
+type="button"
+class="cancel-btn"
+onclick="
+window.location.href='dashboard.html'
+"
+>
+
+Cancel
+
+</button>
+
+</div>
 
 </form>
 
 </div>
 
+</div>
+
+<script>
+
+/* ================================
+   CHECK LOGIN
+================================ */
+
+const userId =
+localStorage.getItem(
+'userId'
+);
+
+if(!userId){
+
+window.location.href =
+'index.html';
+
+}
+
+/* ================================
+   SET USER ID
+================================ */
+
+document.getElementById(
+'hiddenUserId'
+).value = userId;
+
+/* ================================
+   LOGOUT
+================================ */
+
+function logoutUser(){
+
+localStorage.clear();
+
+}
+
+</script>
+
 </body>
+
 </html>

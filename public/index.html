@@ -1,24 +1,184 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>Login</title>
-<link rel="stylesheet" href="/style.css">
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Skill Match - Login
+</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+
+}
+
+.login-container{
+
+width:100%;
+max-width:420px;
+
+}
+
+.login-card{
+
+background:white;
+
+padding:40px;
+
+border-radius:20px;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,0.15);
+
+text-align:center;
+
+}
+
+.login-card h1{
+
+font-size:2.3rem;
+
+margin-bottom:10px;
+
+color:#4B0082;
+
+}
+
+.login-card p{
+
+opacity:0.7;
+
+margin-bottom:30px;
+
+}
+
+.login-card input{
+
+margin-bottom:15px;
+
+}
+
+.login-card button{
+
+margin-top:10px;
+
+}
+
+.bottom-link{
+
+margin-top:20px;
+
+font-size:0.95rem;
+
+}
+
+.logo-circle{
+
+width:90px;
+height:90px;
+
+border-radius:50%;
+
+background:#6366f1;
+
+margin:0 auto 20px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:2.5rem;
+
+color:white;
+
+font-weight:bold;
+
+}
+
+</style>
+
 </head>
+
 <body>
 
-<div class="content-box">
-<h1>Login</h1>
+<div class="login-container">
 
-<form action="/login" method="POST">
-<input type="email" name="email" placeholder="Email" required>
-<input type="password" name="password" placeholder="Password" required>
-<button type="submit">Login</button>
-</form>
+<div class="login-card">
+
+<div class="logo-circle">
+
+S
+
+</div>
+
+<h1>
+
+Skill Match
+
+</h1>
 
 <p>
-New here? <a href="/register.html">Register</a>
+
+Login to continue
+
 </p>
+
+<form
+action="/login"
+method="POST"
+>
+
+<input
+type="email"
+name="email"
+placeholder="Email Address"
+required
+>
+
+<input
+type="password"
+name="password"
+placeholder="Password"
+required
+>
+
+<button type="submit">
+
+Login
+
+</button>
+
+</form>
+
+<div class="bottom-link">
+
+Don't have an account?
+
+<a href="register.html">
+
+Register here
+
+</a>
+
+</div>
+
+</div>
+
 </div>
 
 </body>
+
 </html>
