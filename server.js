@@ -8,66 +8,27 @@ const app = express();
    DATABASE CONNECTION (SUPABASE POSTGRES)
 ========================================= */
 
-const { Pool } = require("pg");
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  max: 1,
+  idleTimeoutMillis: 5000
 });
 
 /* =========================================
-   INITIALIZE DATABASE
+   SAFE DB INIT (DO NOT CRASH VERCEL)
 ========================================= */
 
 async function initDb() {
   try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        user_id SERIAL PRIMARY KEY,
-        name VARCHAR(100),
-        email VARCHAR(100) UNIQUE,
-        password VARCHAR(255),
-        bio TEXT DEFAULT '',
-        pfp_icon VARCHAR(10) DEFAULT ''
-      );
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS skills (
-        skill_id SERIAL PRIMARY KEY,
-        user_id INT,
-        type VARCHAR(20),
-        skill_name VARCHAR(100),
-        description TEXT,
-        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-      );
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS messages (
-        message_id SERIAL PRIMARY KEY,
-        sender_id INT,
-        receiver_id INT,
-        message_text TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    console.log("Database connected successfully");
+    await pool.query("SELECT 1");
+    console.log("DB READY");
   } catch (err) {
-    console.log("Database Error:", err);
+    console.log("DB INIT ERROR:", err.message);
   }
 }
-
-pool.query("SELECT NOW()", (err, res) => {
-  if (err) {
-    console.log("DB CONNECTION FAILED:", err);
-  } else {
-    console.log("DB CONNECTED:", res.rows);
-  }
-});
 
 initDb();
 
@@ -80,7 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 /* =========================================
-   ROUTES (UNCHANGED)
+   ROUTES
 ========================================= */
 
 app.get("/", (req, res) => {
@@ -99,8 +60,12 @@ app.post("/register", async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    console.log(err);
-    res.json({ success: false, error: "Email already exists" });
+    console.log("REGISTER ERROR:", err.message);
+
+    res.json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -120,7 +85,7 @@ app.post("/login", async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.log(err);
+    console.log("LOGIN ERROR:", err.message);
     res.status(500).json({ error: "Login error" });
   }
 });
@@ -146,7 +111,11 @@ app.post("/api/update-bio", async (req, res) => {
   const { bio, userId } = req.body;
 
   try {
-    await pool.query(`UPDATE users SET bio=$1 WHERE user_id=$2`, [bio, userId]);
+    await pool.query(
+      `UPDATE users SET bio=$1 WHERE user_id=$2`,
+      [bio, userId]
+    );
+
     res.json({ success: true });
   } catch (err) {
     res.json({ success: false });
@@ -158,10 +127,10 @@ app.post("/api/update-pfp", async (req, res) => {
   const { pfp_icon, userId } = req.body;
 
   try {
-    await pool.query(`UPDATE users SET pfp_icon=$1 WHERE user_id=$2`, [
-      pfp_icon,
-      userId
-    ]);
+    await pool.query(
+      `UPDATE users SET pfp_icon=$1 WHERE user_id=$2`,
+      [pfp_icon, userId]
+    );
 
     res.json({ success: true });
   } catch (err) {
@@ -175,7 +144,8 @@ app.post("/add-post", async (req, res) => {
 
   try {
     await pool.query(
-      `INSERT INTO skills (user_id, type, skill_name, description) VALUES ($1, $2, $3, $4)`,
+      `INSERT INTO skills (user_id, type, skill_name, description)
+       VALUES ($1, $2, $3, $4)`,
       [user_id, post_type, skill_name, description]
     );
 
@@ -185,7 +155,7 @@ app.post("/add-post", async (req, res) => {
   }
 });
 
-/* SEARCH */
+/* SEARCH SKILLS */
 app.get("/api/search-skills", async (req, res) => {
   const query = req.query.query || "";
 
@@ -209,7 +179,11 @@ app.delete("/api/delete-post/:postId", async (req, res) => {
   const { postId } = req.params;
 
   try {
-    await pool.query(`DELETE FROM skills WHERE skill_id=$1`, [postId]);
+    await pool.query(
+      `DELETE FROM skills WHERE skill_id=$1`,
+      [postId]
+    );
+
     res.json({ success: true });
   } catch (err) {
     res.json({ success: false });
@@ -229,13 +203,14 @@ app.get("/api/my-contacts", async (req, res) => {
   }
 });
 
-/* MESSAGES */
+/* SEND MESSAGE */
 app.post("/api/reply-message", async (req, res) => {
   const { message_text, receiverId, senderId } = req.body;
 
   try {
     await pool.query(
-      `INSERT INTO messages (sender_id, receiver_id, message_text) VALUES ($1, $2, $3)`,
+      `INSERT INTO messages (sender_id, receiver_id, message_text)
+       VALUES ($1, $2, $3)`,
       [senderId, receiverId, message_text]
     );
 
@@ -265,7 +240,7 @@ app.get("/api/get-messages", async (req, res) => {
 });
 
 /* =========================================
-   EXPORT FOR VERCEL (IMPORTANT)
+   EXPORT (VERCEL REQUIRED)
 ========================================= */
 
 module.exports = app;
